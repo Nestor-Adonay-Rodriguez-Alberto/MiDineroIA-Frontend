@@ -42,3 +42,9 @@ __screenshots__/
 .DS_Store
 Thumbs.db
 MiDineroIA-Frontend/
+
+# MCP config (contains secrets)
+.mcp.json
+
+# Claude Code local config
+.claude/
