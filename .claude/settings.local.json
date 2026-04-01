@@ -1,0 +1,7 @@
+{
+  "enabledMcpjsonServers": [
+    "shadcn-ui",
+    "context7",
+    "figma"
+  ]
+}
