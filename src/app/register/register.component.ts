@@ -51,13 +51,6 @@ export class RegisterComponent {
   toggleConfirm()  { this.showConfirm.update((v) => !v);  }
 
   onSubmit() {
-    // Debug: ver estado del formulario
-    console.log('Form valid:', this.form.valid);
-    console.log('Form errors:', this.form.errors);
-    console.log('Form values:', this.form.value);
-    console.log('Terms value:', this.form.get('terms')?.value);
-    
-    // Marcar todos los campos como touched para mostrar errores de validación
     this.form.markAllAsTouched();
     
     if (this.form.valid) {
