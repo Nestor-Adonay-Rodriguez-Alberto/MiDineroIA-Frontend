@@ -58,8 +58,4 @@ export class LoginComponent {
       });
     }
   }
-
-  onGoogleLogin() {
-    console.log('Google login');
-  }
 }
