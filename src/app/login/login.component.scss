@@ -206,6 +206,19 @@
   }
 }
 
+// ─── Error message ───────────────────────────────────────────────────────────
+
+.error-message {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #dc2626;
+  font-size: 13.5px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  margin-bottom: 16px;
+  text-align: center;
+}
+
 // ─── Submit button ────────────────────────────────────────────────────────────
 
 .btn-submit {
@@ -218,15 +231,20 @@
   border: none;
   border-radius: 12px;
   cursor: pointer;
-  transition: background 0.2s, transform 0.1s;
+  transition: background 0.2s, transform 0.1s, opacity 0.2s;
   letter-spacing: 0.3px;
 
-  &:hover {
+  &:hover:not(:disabled) {
     background: #174f24;
   }
 
-  &:active {
+  &:active:not(:disabled) {
     transform: scale(0.99);
+  }
+
+  &:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
   }
 }
 

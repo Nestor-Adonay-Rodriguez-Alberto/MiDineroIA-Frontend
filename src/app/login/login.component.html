@@ -98,9 +98,20 @@
           <a href="#" class="forgot-link">¿Olvidaste tu contraseña?</a>
         </div>
 
+        <!-- Mensaje de error -->
+        @if (errorMessage()) {
+          <div class="error-message">
+            {{ errorMessage() }}
+          </div>
+        }
+
         <!-- Botón submit -->
-        <button type="submit" class="btn-submit">
-          Iniciar sesión
+        <button type="submit" class="btn-submit" [disabled]="isLoading()">
+          @if (isLoading()) {
+            Iniciando...
+          } @else {
+            Iniciar sesión
+          }
         </button>
 
       </form>
@@ -126,7 +137,7 @@
 
       <!-- Registro -->
       <p class="register-text">
-        ¿No tienes cuenta?&nbsp;<a href="#" class="register-link">Crear cuenta</a>
+        ¿No tienes cuenta?&nbsp;<a routerLink="/register" class="register-link">Crear cuenta</a>
       </p>
     </div>
 
