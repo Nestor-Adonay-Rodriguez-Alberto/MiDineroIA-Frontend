@@ -1,7 +1,9 @@
 import { Component, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
+import { AuthService } from '../core/services/auth.service';
+import { HttpErrorResponse } from '@angular/common/http';
 
 function passwordMatch(control: AbstractControl): ValidationErrors | null {
   const password = control.get('password');
@@ -22,10 +24,16 @@ function passwordMatch(control: AbstractControl): ValidationErrors | null {
 export class RegisterComponent {
   showPassword = signal(false);
   showConfirm = signal(false);
+  isLoading = signal(false);
+  errorMessage = signal<string | null>(null);
 
   form: FormGroup;
 
-  constructor(private fb: FormBuilder) {
+  constructor(
+    private fb: FormBuilder,
+    private authService: AuthService,
+    private router: Router
+  ) {
     this.form = this.fb.group(
       {
         nombre: ['', Validators.required],
@@ -43,12 +51,37 @@ export class RegisterComponent {
   toggleConfirm()  { this.showConfirm.update((v) => !v);  }
 
   onSubmit() {
+    // Debug: ver estado del formulario
+    console.log('Form valid:', this.form.valid);
+    console.log('Form errors:', this.form.errors);
+    console.log('Form values:', this.form.value);
+    console.log('Terms value:', this.form.get('terms')?.value);
+    
+    // Marcar todos los campos como touched para mostrar errores de validación
+    this.form.markAllAsTouched();
+    
     if (this.form.valid) {
-      console.log(this.form.value);
-    }
-  }
+      this.isLoading.set(true);
+      this.errorMessage.set(null);
 
-  onGoogleRegister() {
-    console.log('Google register');
+      const { nombre, apellido, email, password } = this.form.value;
+      const name = `${nombre} ${apellido}`.trim();
+
+      this.authService.register({ name, email, password }).subscribe({
+        next: () => {
+          this.router.navigate(['/dashboard']);
+        },
+        error: (error: HttpErrorResponse) => {
+          this.isLoading.set(false);
+          if (error.status === 409) {
+            this.errorMessage.set('Este email ya está registrado');
+          } else if (error.status === 0) {
+            this.errorMessage.set('Error de conexión, intenta de nuevo');
+          } else {
+            this.errorMessage.set('Algo salió mal, intenta de nuevo');
+          }
+        }
+      });
+    }
   }
 }
