@@ -744,7 +744,7 @@ $db-transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 // ── Section wrapper ────────────────────────────────────
 .db-section {
   padding: 0 16px;
-  margin-top: 8px;
+  margin-top: 12px;
 }
 
 // ── KPI Cards ──────────────────────────────────────────
@@ -1201,7 +1201,7 @@ $db-transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     grid-template-columns: 1fr;
   }
 
-  .db-section { padding: 0 12px; margin-top: 8px; }
+  .db-section { padding: 0 12px; margin-top: 12px; }
 
   .db-summary-grid,
   .db-detail-grid {
@@ -1288,7 +1288,7 @@ $db-transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 
   .db-cards {
     gap: 10px;
-    padding: 12px 20px;
+    padding: 22px 20px;
   }
 
   .db-card {
@@ -1297,7 +1297,7 @@ $db-transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     &__label { font-size: 11px; }
   }
 
-  .db-section { padding: 0 20px; margin-top: 8px; }
+  .db-section { padding: 0 20px; margin-top: 12px; }
 
   .db-distribution {
     padding: 24px;
