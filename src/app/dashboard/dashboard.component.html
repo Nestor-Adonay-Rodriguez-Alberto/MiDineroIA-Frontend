@@ -156,25 +156,36 @@
     <h3 class="db-distribution__title">Distribución de egresos</h3>
     <div class="db-distribution__body">
 
-      <div class="db-donut">
-        <svg viewBox="0 0 200 200" width="180" height="180">
-          @for (seg of getSegments(); track seg.label) {
-            <path [attr.d]="seg.path" [attr.fill]="seg.color" stroke="#fff" stroke-width="2"/>
-          }
-          <text x="100" y="93" text-anchor="middle" class="db-donut__val">{{ fmt(totalEgresos) }}</text>
-          <text x="100" y="111" text-anchor="middle" class="db-donut__sub">Total</text>
-        </svg>
-      </div>
+      @if (totalEgresos === 0) {
+        <div class="db-distribution__empty">
+          <svg viewBox="0 0 200 200" width="140" height="140">
+            <circle cx="100" cy="100" r="75" fill="none" stroke="#E0E0E0" stroke-width="31"/>
+            <text x="100" y="105" text-anchor="middle" fill="#9E9E9E" font-size="14">$0.00</text>
+          </svg>
+          <p class="db-distribution__empty-text">Sin gastos este mes</p>
+        </div>
+      } @else {
+        <div class="db-donut">
+          <svg viewBox="0 0 200 200" width="180" height="180">
+            @for (seg of getSegments(); track seg.label) {
+              <path [attr.d]="seg.path" [attr.fill]="seg.color" stroke="#fff" stroke-width="2"/>
+            }
+            <text x="100" y="93" text-anchor="middle" class="db-donut__val">{{ fmt(totalEgresos) }}</text>
+            <text x="100" y="111" text-anchor="middle" class="db-donut__sub">Total</text>
+          </svg>
+        </div>
 
-      <ul class="db-legend">
-        @for (seg of getSegments(); track seg.label) {
-          <li class="db-legend__item">
-            <span class="db-legend__dot" [style.background]="seg.color"></span>
-            <span class="db-legend__name">{{ seg.label }}</span>
-            <span class="db-legend__amount">{{ seg.amount }}</span>
-          </li>
-        }
-      </ul>
+        <ul class="db-legend">
+          @for (seg of getSegments(); track seg.label) {
+            <li class="db-legend__item">
+              <span class="db-legend__dot" [style.background]="seg.color"></span>
+              <span class="db-legend__name">{{ seg.label }}</span>
+              <span class="db-legend__pct">{{ seg.percentage }}%</span>
+              <span class="db-legend__amount">{{ seg.amount }}</span>
+            </li>
+          }
+        </ul>
+      }
 
     </div>
   </div>

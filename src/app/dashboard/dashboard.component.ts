@@ -52,7 +52,7 @@ export class DashboardComponent implements OnInit {
   expenseGroups: ExpenseGroupDto[] = [];
 
   // Gráfico de dona
-  chartSegments: { label: string; value: number; color: string }[] = [];
+  chartSegments: { label: string; value: number; percentage: number; color: string }[] = [];
   totalEgresos = 0;
 
   private chartColors = ['#43A047', '#E53935', '#1976D2', '#FB8C00', '#8E24AA', '#00ACC1', '#F4511E', '#6D4C41'];
@@ -133,6 +133,7 @@ export class DashboardComponent implements OnInit {
     this.chartSegments = dist.map((d, i) => ({
       label: d.group,
       value: d.total,
+      percentage: d.percentage,
       color: this.chartColors[i % this.chartColors.length],
     }));
   }
@@ -227,6 +228,7 @@ export class DashboardComponent implements OnInit {
         color: seg.color,
         label: seg.label,
         amount: this.fmt(seg.value),
+        percentage: seg.percentage,
       };
     });
   }
