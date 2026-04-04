@@ -28,12 +28,15 @@
     }
   </section>
 
-  <!-- ── RESUMEN TABLES (income + expense summary) ────── -->
-  <div class="db-summary-grid">
+  <!-- ── TÍTULO PANEL ───────────────────────────────────── -->
+  <div class="db-panel-title">Panel Financiero Personal - Resumen Anual</div>
 
-    <!-- Resumen de ingresos -->
-    <div class="db-tbl-block">
-      <div class="db-tbl-block__header db-tbl-block__header--green">Resumen de ingresos</div>
+  <!-- ── MAIN GRID: 4 columnas ─────────────────────────── -->
+  <div class="db-main-grid">
+
+    <!-- COL 1: Resumen de Ingresos -->
+    <div class="db-tbl-block db-col-ing">
+      <div class="db-tbl-block__header db-tbl-block__header--green">Resumen de Ingresos</div>
       <table class="db-tbl">
         <thead>
           <tr>
@@ -46,22 +49,26 @@
           @for (row of incomeRows; track row.category) {
             <tr>
               <td>{{ row.category }}</td>
-              <td class="db-tbl__num db-tbl__num--ppto">{{ row.ppto }}</td>
-              <td class="db-tbl__num db-tbl__num--income">{{ row.real }}</td>
+              <td class="db-tbl__num db-tbl__num--ppto">$ {{ row.ppto }}</td>
+              <td class="db-tbl__num" [class.db-tbl__num--income]="row.highlight">
+                @if (row.highlight) { <strong>$ {{ row.real }}</strong> }
+                @else { <span>$ {{ row.real }}</span> }
+              </td>
             </tr>
           }
           <tr class="db-tbl__total db-tbl__total--income">
             <td>Total</td>
-            <td class="db-tbl__num">$24,000</td>
-            <td class="db-tbl__num">$25,150</td>
+            <td class="db-tbl__num">$ 33,000.00</td>
+            <td class="db-tbl__num"><strong>$ 33,900.00</strong></td>
           </tr>
         </tbody>
       </table>
     </div>
 
-    <!-- Resumen de egresos -->
-    <div class="db-tbl-block">
-      <div class="db-tbl-block__header db-tbl-block__header--green">Resumen de egresos</div>
+    <!-- COL 2: Resumen de Egresos + Donut apilados -->
+    <div class="db-col2-stack">
+    <div class="db-tbl-block db-col-egr">
+      <div class="db-tbl-block__header db-tbl-block__header--green">Resumen de Egresos</div>
       <table class="db-tbl">
         <thead>
           <tr>
@@ -74,27 +81,46 @@
           @for (row of expenseSummaryRows; track row.category) {
             <tr>
               <td>{{ row.category }}</td>
-              <td class="db-tbl__num db-tbl__num--ppto">{{ row.ppto }}</td>
-              <td class="db-tbl__num db-tbl__num--expense">{{ row.real }}</td>
+              <td class="db-tbl__num db-tbl__num--ppto">$ {{ row.ppto }}</td>
+              <td class="db-tbl__num db-tbl__num--expense">
+                <strong>$ {{ row.real }}</strong>
+              </td>
             </tr>
           }
           <tr class="db-tbl__total db-tbl__total--expense">
             <td>Total</td>
-            <td class="db-tbl__num">$22,600</td>
-            <td class="db-tbl__num">$23,430</td>
+            <td class="db-tbl__num">$ 29,550.00</td>
+            <td class="db-tbl__num"><strong>$ 30,250.00</strong></td>
           </tr>
         </tbody>
       </table>
+
     </div>
 
-  </div>
+    <!-- Donut: card separada debajo de Egresos -->
+    <div class="db-donut-card-grid">
+      <svg viewBox="-20 -20 240 240" width="180" height="180">
+        @for (seg of getSegments(); track seg.label) {
+          <path [attr.d]="seg.path" [attr.fill]="seg.color" stroke="#fff" stroke-width="2"/>
+        }
+        @for (seg of getSegments(); track seg.label) {
+          <text [attr.x]="seg.labelX" [attr.y]="seg.labelY - 6"
+            text-anchor="middle" dominant-baseline="middle"
+            class="db-donut__seg-label">{{ seg.label }}</text>
+          <text [attr.x]="seg.labelX" [attr.y]="seg.labelY + 7"
+            text-anchor="middle" dominant-baseline="middle"
+            class="db-donut__seg-pct">{{ seg.pct }}%</text>
+        }
+        <text x="100" y="93" text-anchor="middle" class="db-donut__label">Distribución</text>
+        <text x="100" y="109" text-anchor="middle" class="db-donut__sub">de Egresos</text>
+      </svg>
+    </div>
 
-  <!-- ── DETAIL TABLES (servicios + gastos) ───────────── -->
-  <div class="db-detail-grid">
+    </div><!-- /db-col2-stack -->
 
-    <!-- SERVICIOS -->
-    <div class="db-tbl-block">
-      <div class="db-tbl-block__header db-tbl-block__header--green">SERVICIOS</div>
+    <!-- COL 3: Servicios -->
+    <div class="db-tbl-block db-col-srv">
+      <div class="db-tbl-block__header db-tbl-block__header--green">Servicios</div>
       <table class="db-tbl">
         <thead>
           <tr>
@@ -108,26 +134,28 @@
             <tr>
               <td>{{ row.category }}</td>
               <td class="db-tbl__num db-tbl__num--ppto db-tbl__num--editable">
-                {{ row.ppto ?? '...' }}
+                {{ row.ppto != null ? '$ ' + row.ppto : '-' }}
               </td>
-              <td class="db-tbl__num db-tbl__num--income">{{ row.real }}</td>
+              <td class="db-tbl__num"
+                  [class.db-tbl__num--income]="row.highlight"
+                  [class.db-tbl__num--expense]="row.overBudget">
+                @if (row.highlight || row.overBudget) { <strong>$ {{ row.real }}</strong> }
+                @else { <span>{{ row.real }}</span> }
+              </td>
             </tr>
           }
+          <tr class="db-tbl__total db-tbl__total--income">
+            <td>Total</td>
+            <td class="db-tbl__num">$ 9,550.00</td>
+            <td class="db-tbl__num"><strong>$ 9,250.00</strong></td>
+          </tr>
         </tbody>
       </table>
-      <p class="db-tbl-block__hint">
-        <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-          <circle cx="6" cy="6" r="5.5" stroke="#1976D2"/>
-          <path d="M6 5.5V9" stroke="#1976D2" stroke-linecap="round"/>
-          <circle cx="6" cy="3.5" r="0.75" fill="#1976D2"/>
-        </svg>
-        Toca cualquier celda de Ppto para editarla
-      </p>
     </div>
 
-    <!-- GASTOS -->
-    <div class="db-tbl-block">
-      <div class="db-tbl-block__header db-tbl-block__header--orange">GASTOS</div>
+    <!-- COL 4: Gastos -->
+    <div class="db-tbl-block db-col-gst">
+      <div class="db-tbl-block__header db-tbl-block__header--green">Gastos</div>
       <table class="db-tbl">
         <thead>
           <tr>
@@ -141,51 +169,25 @@
             <tr>
               <td>{{ row.category }}</td>
               <td class="db-tbl__num db-tbl__num--ppto db-tbl__num--editable">
-                {{ row.ppto ?? '...' }}
+                {{ row.ppto != null ? '$ ' + row.ppto : '-' }}
               </td>
-              <td class="db-tbl__num db-tbl__num--expense">{{ row.real }}</td>
+              <td class="db-tbl__num"
+                  [class.db-tbl__num--income]="row.highlight"
+                  [class.db-tbl__num--expense]="row.overBudget">
+                @if (row.highlight || row.overBudget) { <strong>$ {{ row.real }}</strong> }
+                @else { <span>$ {{ row.real }}</span> }
+              </td>
             </tr>
           }
+          <tr class="db-tbl__total db-tbl__total--expense">
+            <td>Total</td>
+            <td class="db-tbl__num">$ 7,500.00</td>
+            <td class="db-tbl__num"><strong>$ 7,200.00</strong></td>
+          </tr>
         </tbody>
       </table>
-      <p class="db-tbl-block__hint">
-        <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-          <circle cx="6" cy="6" r="5.5" stroke="#1976D2"/>
-          <path d="M6 5.5V9" stroke="#1976D2" stroke-linecap="round"/>
-          <circle cx="6" cy="3.5" r="0.75" fill="#1976D2"/>
-        </svg>
-        Toca cualquier celda de Ppto para editarla
-      </p>
     </div>
 
-  </div>
-
-  <!-- ── DISTRIBUCIÓN ───────────────────────────────────── -->
-  <div class="db-distribution">
-    <h3 class="db-distribution__title">Distribución de egresos</h3>
-    <div class="db-distribution__body">
-
-      <div class="db-donut">
-        <svg viewBox="0 0 200 200" width="180" height="180">
-          @for (seg of getSegments(); track seg.label) {
-            <path [attr.d]="seg.path" [attr.fill]="seg.color" stroke="#fff" stroke-width="2"/>
-          }
-          <text x="100" y="93" text-anchor="middle" class="db-donut__val">$23,430</text>
-          <text x="100" y="111" text-anchor="middle" class="db-donut__sub">Total</text>
-        </svg>
-      </div>
-
-      <ul class="db-legend">
-        @for (seg of getSegments(); track seg.label) {
-          <li class="db-legend__item">
-            <span class="db-legend__dot" [style.background]="seg.color"></span>
-            <span class="db-legend__name">{{ seg.label }}</span>
-            <span class="db-legend__amount">{{ seg.amount }}</span>
-          </li>
-        }
-      </ul>
-
-    </div>
   </div>
 
   <!-- ── BOTTOM NAV ─────────────────────────────────────── -->
