@@ -532,399 +532,790 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 }
 
 // ═══════════════════════════════════════════════════════
-// DASHBOARD
+// DASHBOARD — Premium Redesign
 // ═══════════════════════════════════════════════════════
 
-.db-wrapper {
-  min-height: 100vh;
-  background: #FAFAFA;
-  font-family: Roboto, sans-serif;
-  padding-bottom: 64px;
+// ── Google Font import ─────────────────────────────────
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap');
+
+// ── Design tokens ──────────────────────────────────────
+$db-font-display: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+$db-font-body: 'DM Sans', Roboto, sans-serif;
+$db-font-mono: 'DM Sans', 'Tabular Nums', Roboto, sans-serif;
+
+$db-green-900: #1B5E20;
+$db-green-700: #2E7D32;
+$db-green-600: #388E3C;
+$db-green-500: #43A047;
+$db-green-100: #E8F5E9;
+$db-green-50:  #F1F8E9;
+
+$db-blue-700: #1565C0;
+$db-blue-600: #1976D2;
+$db-blue-100: #E3F2FD;
+
+$db-red-800: #C62828;
+$db-red-600: #E53935;
+$db-red-100: #FFEBEE;
+$db-red-50:  #FFF5F5;
+
+$db-gray-900: #1a1a2e;
+$db-gray-700: #374151;
+$db-gray-600: #4B5563;
+$db-gray-500: #6B7280;
+$db-gray-400: #9CA3AF;
+$db-gray-300: #D1D5DB;
+$db-gray-200: #E5E7EB;
+$db-gray-100: #F3F4F6;
+$db-gray-50:  #F9FAFB;
+
+$db-yellow-400: #FBBF24;
+$db-yellow-300: #FCD34D;
+
+$db-radius-sm: 8px;
+$db-radius-md: 12px;
+$db-radius-lg: 16px;
+$db-radius-xl: 20px;
+
+$db-shadow-xs: 0 1px 2px rgba(0,0,0,0.04);
+$db-shadow-sm: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+$db-shadow-md: 0 4px 6px -1px rgba(0,0,0,0.07), 0 2px 4px -2px rgba(0,0,0,0.05);
+$db-shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.08), 0 4px 6px -4px rgba(0,0,0,0.04);
+$db-shadow-xl: 0 20px 25px -5px rgba(0,0,0,0.08), 0 8px 10px -6px rgba(0,0,0,0.04);
+
+$db-transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+
+// ── Skeleton animation ─────────────────────────────────
+@keyframes db-shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
 }
 
-// ── Header ──────────────────────────────────────────────
+// ── Wrapper ────────────────────────────────────────────
+.db-wrapper {
+  min-height: 100vh;
+  min-height: 100dvh;
+  background: $db-gray-100;
+  font-family: $db-font-body;
+  padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px));
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
 
+// ── Header ─────────────────────────────────────────────
 .db-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 0 20px;
-  height: 56px;
-  background: linear-gradient(177deg, #1B5E20 0%, #2E7D32 100%);
+  height: 60px;
+  background: linear-gradient(135deg, $db-green-900 0%, $db-green-700 50%, $db-green-600 100%);
+  box-shadow: 0 2px 12px rgba(27, 94, 32, 0.3);
+  position: sticky;
+  top: 0;
+  z-index: 50;
 
   &__logo {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 12px;
   }
 
   &__badge {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    background: #FFD54F;
-    font-size: 16px;
-    font-weight: 500;
-    color: #1B5E20;
+    width: 38px;
+    height: 38px;
+    border-radius: $db-radius-sm;
+    background: $db-yellow-400;
+    font-size: 18px;
+    font-weight: 700;
+    color: $db-green-900;
     flex-shrink: 0;
+    font-family: $db-font-display;
+    box-shadow: 0 2px 8px rgba(251, 191, 36, 0.4);
   }
 
   &__title {
-    font-size: 18px;
-    font-weight: 500;
+    font-size: 20px;
+    font-weight: 600;
     color: #ffffff;
     line-height: 1;
+    font-family: $db-font-display;
+    letter-spacing: -0.3px;
   }
 
   &__title-ia {
-    color: #FFD54F;
+    color: $db-yellow-300;
+    font-weight: 700;
   }
 
   &__actions {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 12px;
   }
 
   &__month-btn {
     display: flex;
     align-items: center;
-    gap: 6px;
-    padding: 0 14px;
-    height: 36px;
-    background: rgba(255, 255, 255, 0.15);
-    border: none;
-    border-radius: 8px;
+    gap: 8px;
+    padding: 0 16px;
+    height: 40px;
+    min-height: 44px; // touch target
+    background: rgba(255, 255, 255, 0.12);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: $db-radius-sm;
     color: #ffffff;
-    font-size: 13px;
-    font-family: Roboto, sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    font-family: $db-font-display;
     cursor: pointer;
     white-space: nowrap;
+    transition: $db-transition;
+    letter-spacing: -0.2px;
 
-    &:hover { background: rgba(255,255,255,0.22); }
+    &:hover { background: rgba(255, 255, 255, 0.2); }
+    &:active { transform: scale(0.97); }
+
+    svg {
+      opacity: 0.8;
+      transition: $db-transition;
+      min-width: 18px;
+      min-height: 18px;
+      &:hover { opacity: 1; transform: scale(1.15); }
+    }
   }
 
   &__avatar {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 34px;
-    height: 34px;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.2);
+    width: 38px;
+    height: 38px;
+    border-radius: $db-radius-sm;
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.2);
     font-size: 13px;
-    font-weight: 500;
+    font-weight: 600;
     color: #ffffff;
     flex-shrink: 0;
+    font-family: $db-font-display;
+    letter-spacing: 0.5px;
+    transition: $db-transition;
+
+    &:hover { background: rgba(255, 255, 255, 0.25); }
   }
 }
 
-// ── KPI Cards ───────────────────────────────────────────
+// ── Skeleton loading ───────────────────────────────────
+.db-skeleton {
+  padding: 16px;
 
+  &__cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  &__card {
+    height: 88px;
+    border-radius: $db-radius-md;
+    background: linear-gradient(90deg, $db-gray-200 25%, $db-gray-100 50%, $db-gray-200 75%);
+    background-size: 200% 100%;
+    animation: db-shimmer 1.5s ease-in-out infinite;
+  }
+
+  &__table {
+    height: 200px;
+    border-radius: $db-radius-md;
+    margin-bottom: 12px;
+    background: linear-gradient(90deg, $db-gray-200 25%, $db-gray-100 50%, $db-gray-200 75%);
+    background-size: 200% 100%;
+    animation: db-shimmer 1.5s ease-in-out infinite;
+    animation-delay: 0.2s;
+  }
+}
+
+// ── Section wrapper ────────────────────────────────────
+.db-section {
+  padding: 12px 16px 0;
+}
+
+// ── KPI Cards ──────────────────────────────────────────
 .db-cards {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 12px;
   padding: 16px;
-  background: #ffffff;
-  border-bottom: 1px solid #E0E0E0;
 }
 
 .db-card {
   border-left: 4px solid;
-  border-radius: 8px;
-  padding: 14px 16px;
+  border-radius: $db-radius-md;
+  padding: 16px 18px;
+  box-shadow: $db-shadow-sm;
+  transition: $db-transition;
+  position: relative;
+  overflow: hidden;
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: currentColor;
+    opacity: 0.03;
+    transform: translate(20px, -20px);
+  }
+
+  &:hover {
+    box-shadow: $db-shadow-md;
+    transform: translateY(-2px);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
 
   &__label {
     display: block;
-    font-size: 11px;
-    font-weight: 400;
+    font-size: 10px;
+    font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 0.6px;
-    margin-bottom: 6px;
-    line-height: 1.4;
+    letter-spacing: 0.8px;
+    margin-bottom: 8px;
+    line-height: 1;
+    font-family: $db-font-display;
+    opacity: 0.85;
   }
 
   &__value {
     display: block;
-    font-size: 22px;
-    font-weight: 500;
-    margin-bottom: 4px;
-    line-height: 1.3;
+    font-size: 24px;
+    font-weight: 700;
+    line-height: 1.1;
+    font-family: $db-font-display;
+    letter-spacing: -0.5px;
   }
 
   &__metric {
     display: block;
     font-size: 11px;
-    color: #43A047;
+    color: $db-green-500;
     line-height: 1.4;
+    margin-top: 4px;
   }
 }
 
-// ── Summary grids ───────────────────────────────────────
-
+// ── Summary & Detail grids ─────────────────────────────
 .db-summary-grid,
 .db-detail-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 0;
-  background: #ffffff;
-  border-bottom: 8px solid #FAFAFA;
-
-  > .db-tbl-block:first-child {
-    border-right: 1px solid #E0E0E0;
-  }
+  gap: 12px;
+  background: transparent;
 }
 
-// ── Table block ─────────────────────────────────────────
-
+// ── Table block ────────────────────────────────────────
 .db-tbl-block {
+  background: #ffffff;
+  border-radius: $db-radius-md;
+  overflow: hidden;
+  box-shadow: $db-shadow-sm;
+  transition: $db-transition;
+
+  &:hover {
+    box-shadow: $db-shadow-md;
+  }
+
   &__header {
-    padding: 10px 14px;
-    font-size: 12px;
-    font-weight: 500;
+    padding: 12px 16px;
+    font-size: 11px;
+    font-weight: 600;
     color: #ffffff;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
+    letter-spacing: 0.8px;
+    font-family: $db-font-display;
+    display: flex;
+    align-items: center;
+    gap: 8px;
 
-    &--green  { background: #2E7D32; }
-    &--orange { background: #FB8C00; }
+    &--green { background: linear-gradient(135deg, $db-green-700, $db-green-600); }
+    &--red   { background: linear-gradient(135deg, $db-red-800, $db-red-600); }
+    &--orange { background: linear-gradient(135deg, #EF6C00, #FB8C00); }
   }
 
   &__hint {
     display: flex;
     align-items: center;
-    gap: 5px;
-    font-size: 10px;
-    color: #1976D2;
-    padding: 8px 14px;
+    gap: 6px;
+    font-size: 11px;
+    color: $db-blue-600;
+    padding: 10px 16px;
     margin: 0;
-    border-top: 1px solid #E0E0E0;
+    background: rgba($db-blue-600, 0.04);
+    border-top: 1px solid $db-gray-100;
+    font-family: $db-font-body;
+    font-weight: 400;
   }
 }
 
-// ── Table ───────────────────────────────────────────────
-
+// ── Table ──────────────────────────────────────────────
 .db-tbl {
   width: 100%;
   border-collapse: collapse;
-  font-size: 12px;
+  font-size: 13px;
 
   thead tr {
-    background: #F5F5F5;
+    background: $db-gray-50;
   }
 
   th {
-    padding: 7px 10px;
-    font-size: 11px;
-    font-weight: 500;
-    color: #757575;
+    padding: 10px 16px;
+    font-size: 10px;
+    font-weight: 600;
+    color: $db-gray-500;
     text-align: left;
-    border-bottom: 1px solid #E0E0E0;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-bottom: 1px solid $db-gray-200;
+    font-family: $db-font-display;
   }
 
   td {
-    padding: 9px 10px;
-    border-bottom: 1px solid #F0F0F0;
-    color: #444444;
-    font-size: 12px;
+    padding: 11px 16px;
+    border-bottom: 1px solid $db-gray-100;
+    color: $db-gray-700;
+    font-size: 13px;
+    font-weight: 400;
+    transition: background 0.15s ease;
+  }
+
+  tbody tr:hover td {
+    background: $db-gray-50;
   }
 
   tr:last-child td { border-bottom: none; }
 
-  &__th--ppto { text-align: right; color: #43A047 !important; }
-  &__th--real { text-align: right; color: #E53935 !important; }
+  &__th--ppto { text-align: right; color: $db-green-500 !important; }
+  &__th--real { text-align: right; color: $db-red-600 !important; }
 
   &__num {
     text-align: right;
-    &--ppto    { color: #43A047; }
-    &--income  { color: #1B5E20; font-weight: 500; }
-    &--expense { color: #C62828; font-weight: 500; }
+    font-variant-numeric: tabular-nums;
+    font-family: $db-font-mono;
+    letter-spacing: -0.2px;
+
+    &--ppto    { color: $db-green-500; font-weight: 500; }
+    &--income  { color: $db-green-900; font-weight: 600; }
+    &--expense { color: $db-red-800; font-weight: 600; }
     &--editable {
-      color: #43A047;
+      color: $db-green-500;
       cursor: pointer;
-      &:hover { background: #E8F5E9; }
+      position: relative;
+      border-radius: 4px;
+      transition: $db-transition;
+
+      &:hover {
+        background: $db-green-50;
+        color: $db-green-700;
+      }
     }
   }
 
   &__input {
-    width: 80px;
-    padding: 2px 6px;
-    border: 1.5px solid #43A047;
-    border-radius: 4px;
-    font-size: 11px;
+    width: 88px;
+    padding: 6px 10px;
+    border: 2px solid $db-green-500;
+    border-radius: $db-radius-sm;
+    font-size: 13px;
+    font-weight: 500;
     text-align: right;
-    color: #1B5E20;
-    background: #F1F8E9;
+    color: $db-green-900;
+    background: #ffffff;
     outline: none;
-    &:focus { border-color: #2E7D32; box-shadow: 0 0 0 2px rgba(46,125,50,0.15); }
+    font-family: $db-font-mono;
+    font-variant-numeric: tabular-nums;
+    box-shadow: 0 0 0 3px rgba($db-green-500, 0.15);
+    transition: $db-transition;
+
+    &:focus {
+      border-color: $db-green-700;
+      box-shadow: 0 0 0 3px rgba($db-green-700, 0.2);
+    }
   }
 
   &__total {
     td {
-      font-weight: 600;
-      font-size: 12px;
+      font-weight: 700;
+      font-size: 13px;
+      font-family: $db-font-display;
+      letter-spacing: -0.2px;
     }
-    &--income td { background: #E8F5E9; color: #1B5E20; }
-    &--expense td { background: #FFEBEE; color: #C62828; }
+    &--income td {
+      background: $db-green-100;
+      color: $db-green-900;
+      border-bottom: none;
+    }
+    &--expense td {
+      background: $db-red-100;
+      color: $db-red-800;
+      border-bottom: none;
+    }
   }
 }
 
-// ── Distribution section ─────────────────────────────────
-
+// ── Distribution section ───────────────────────────────
 .db-distribution {
   background: #ffffff;
-  padding: 16px;
-  margin-bottom: 0;
+  padding: 20px;
+  border-radius: $db-radius-md;
+  box-shadow: $db-shadow-sm;
+  transition: $db-transition;
+
+  &:hover { box-shadow: $db-shadow-md; }
 
   &__title {
-    font-size: 13px;
-    font-weight: 500;
-    color: #444444;
-    margin: 0 0 16px;
-    text-transform: none;
-    letter-spacing: 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: $db-gray-700;
+    margin: 0 0 20px;
+    font-family: $db-font-display;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    letter-spacing: -0.2px;
   }
 
   &__body {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 32px;
+    gap: 40px;
   }
 
   &__empty {
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 16px 0;
+    padding: 24px 0;
+    opacity: 0.7;
   }
 
   &__empty-text {
-    margin: 8px 0 0;
-    font-size: 13px;
-    color: #9E9E9E;
+    margin: 12px 0 0;
+    font-size: 14px;
+    color: $db-gray-400;
+    font-family: $db-font-display;
+    font-weight: 500;
   }
 }
 
-// ── Donut ───────────────────────────────────────────────
-
+// ── Donut ──────────────────────────────────────────────
 .db-donut {
   flex-shrink: 0;
   position: relative;
+  filter: drop-shadow(0 2px 8px rgba(0,0,0,0.08));
+
+  path {
+    transition: opacity 0.2s ease;
+    &:hover { opacity: 0.85; }
+  }
 
   .db-donut__val {
-    font-size: 14px;
-    fill: #212121;
-    font-weight: 500;
-    font-family: Roboto, sans-serif;
+    font-size: 15px;
+    fill: $db-gray-900;
+    font-weight: 700;
+    font-family: $db-font-display;
   }
 
   .db-donut__sub {
     font-size: 11px;
-    fill: #757575;
-    font-family: Roboto, sans-serif;
+    fill: $db-gray-400;
+    font-family: $db-font-display;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 1px;
   }
 }
 
 // ── Legend ──────────────────────────────────────────────
-
 .db-legend {
   list-style: none;
   margin: 0;
   padding: 0;
-  min-width: 160px;
+  min-width: 180px;
 
   &__item {
     display: flex;
     align-items: center;
-    gap: 8px;
-    padding: 6px 0;
-    border-bottom: 1px solid #F5F5F5;
-    font-size: 12px;
+    gap: 10px;
+    padding: 10px 12px;
+    margin-bottom: 4px;
+    border-radius: $db-radius-sm;
+    font-size: 13px;
+    transition: $db-transition;
 
-    &:last-child { border-bottom: none; }
+    &:hover { background: $db-gray-50; }
+    &:last-child { margin-bottom: 0; }
   }
 
   &__dot {
     width: 10px;
     height: 10px;
-    border-radius: 50%;
+    border-radius: 3px;
     flex-shrink: 0;
   }
 
   &__name {
     flex: 1;
-    color: #444444;
+    color: $db-gray-700;
+    font-weight: 400;
+    font-family: $db-font-body;
   }
 
   &__pct {
-    color: #757575;
-    font-size: 11px;
-    min-width: 32px;
+    color: $db-gray-500;
+    font-size: 12px;
+    font-weight: 500;
+    min-width: 36px;
     text-align: right;
+    font-family: $db-font-mono;
+    font-variant-numeric: tabular-nums;
   }
 
   &__amount {
-    color: #212121;
-    font-weight: 500;
-    font-size: 12px;
+    color: $db-gray-900;
+    font-weight: 600;
+    font-size: 13px;
+    font-family: $db-font-mono;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.3px;
   }
 }
 
-// ── Bottom nav ──────────────────────────────────────────
-
+// ── Bottom nav ─────────────────────────────────────────
 .db-bottom-nav {
   position: fixed;
   bottom: 0;
   left: 0;
   right: 0;
-  height: 60px;
+  height: calc(64px + env(safe-area-inset-bottom, 0px));
+  padding-bottom: env(safe-area-inset-bottom, 0px);
   background: #ffffff;
-  border-top: 1px solid #E0E0E0;
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.06);
   display: flex;
   align-items: center;
   justify-content: space-around;
   z-index: 100;
+  border-top: 1px solid $db-gray-100;
 
   &__item {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 3px;
+    gap: 4px;
     background: none;
     border: none;
     cursor: pointer;
-    padding: 6px 24px;
-    color: #9E9E9E;
+    padding: 8px 32px;
+    min-width: 64px;
+    min-height: 48px;
+    color: $db-gray-400;
     font-size: 11px;
-    font-family: Roboto, sans-serif;
+    font-weight: 500;
+    font-family: $db-font-display;
+    transition: $db-transition;
+    position: relative;
+    border-radius: $db-radius-sm;
 
-    span { font-size: 11px; color: #9E9E9E; }
+    span {
+      font-size: 11px;
+      color: $db-gray-400;
+      font-weight: 500;
+      transition: $db-transition;
+    }
 
-    &--active span { color: #2E7D32; }
+    &:hover {
+      background: $db-gray-50;
+    }
+
+    &--active {
+      &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 32px;
+        height: 3px;
+        background: $db-green-600;
+        border-radius: 0 0 3px 3px;
+      }
+
+      span {
+        color: $db-green-700;
+        font-weight: 600;
+      }
+    }
   }
 }
 
-// ── Responsive ──────────────────────────────────────────
+// ═══════════════════════════════════════════════════════
+// RESPONSIVE — Mobile First
+// ═══════════════════════════════════════════════════════
 
-@media (max-width: 700px) {
+// Móvil pequeño
+@media (max-width: 480px) {
+  .db-header {
+    padding: 0 12px;
+    height: 56px;
+
+    &__badge { width: 34px; height: 34px; font-size: 16px; }
+    &__title { font-size: 18px; }
+    &__month-btn { padding: 0 10px; font-size: 13px; height: 38px; }
+    &__avatar { width: 34px; height: 34px; }
+  }
+
   .db-cards {
     grid-template-columns: 1fr;
     gap: 10px;
+    padding: 12px;
+  }
+
+  .db-card {
+    padding: 14px 16px;
+    &__value { font-size: 22px; }
+  }
+
+  .db-skeleton__cards {
+    grid-template-columns: 1fr;
+  }
+
+  .db-section { padding: 10px 12px 0; }
+
+  .db-summary-grid,
+  .db-detail-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .db-tbl {
+    th { padding: 8px 12px; font-size: 10px; }
+    td { padding: 10px 12px; font-size: 12px; }
+  }
+
+  .db-distribution {
+    padding: 16px;
+
+    &__body {
+      flex-direction: column;
+      gap: 20px;
+    }
+  }
+
+  .db-legend {
+    min-width: unset;
+    width: 100%;
+
+    &__item { padding: 8px 8px; }
+  }
+
+  .db-bottom-nav__item {
+    padding: 8px 20px;
+  }
+}
+
+// Móvil / Tablet pequeña
+@media (min-width: 481px) and (max-width: 768px) {
+  .db-cards {
+    grid-template-columns: 1fr;
+    gap: 10px;
+    padding: 14px;
   }
 
   .db-summary-grid,
   .db-detail-grid {
     grid-template-columns: 1fr;
-    > .db-tbl-block:first-child { border-right: none; border-bottom: 8px solid #FAFAFA; }
+    gap: 10px;
   }
 
   .db-distribution__body {
     flex-direction: column;
+    gap: 24px;
+  }
+
+  .db-legend {
+    min-width: unset;
+    width: 100%;
+  }
+}
+
+// Tablet
+@media (min-width: 769px) and (max-width: 1024px) {
+  .db-wrapper {
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  .db-cards {
+    gap: 14px;
+    padding: 18px;
+  }
+
+  .db-card__value { font-size: 26px; }
+}
+
+// Desktop
+@media (min-width: 1025px) {
+  .db-wrapper {
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  .db-header {
+    border-radius: 0 0 $db-radius-lg $db-radius-lg;
+  }
+
+  .db-cards {
     gap: 16px;
+    padding: 20px;
+  }
+
+  .db-card {
+    padding: 20px 22px;
+    &__value { font-size: 28px; }
+    &__label { font-size: 11px; }
+  }
+
+  .db-section { padding: 14px 20px 0; }
+
+  .db-distribution {
+    padding: 24px;
+
+    &__body { gap: 48px; }
+  }
+
+  .db-legend__item {
+    padding: 12px 14px;
+  }
+}
+
+// ── Scrollbar styling ──────────────────────────────────
+.db-wrapper {
+  &::-webkit-scrollbar { width: 6px; }
+  &::-webkit-scrollbar-track { background: transparent; }
+  &::-webkit-scrollbar-thumb {
+    background: $db-gray-300;
+    border-radius: 3px;
+    &:hover { background: $db-gray-400; }
   }
 }
