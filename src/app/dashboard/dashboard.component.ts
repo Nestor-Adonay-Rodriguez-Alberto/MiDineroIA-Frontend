@@ -1,83 +1,157 @@
-import { Component } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterLink } from '@angular/router';
+import { DashboardService } from '../core/services/dashboard.service';
+import {
+  DashboardResponse,
+  CategoryDetailDto,
+  ExpenseGroupDto,
+  ExpenseDistributionDto,
+} from '../core/models/dashboard.model';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterLink],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss',
 })
-export class DashboardComponent {
-  selectedMonth = 'Marzo 2026';
+export class DashboardComponent implements OnInit {
+  private dashboardService = inject(DashboardService);
 
-  kpiCards = [
-    {
-      label: 'SALDO',
-      value: '$1,720.00',
-      metric: '▲ +5.2% vs mes anterior',
-      bg: '#E8F5E9',
-      border: '#2E7D32',
-      labelColor: '#558B2F',
-      valueColor: '#1B5E20',
-    },
-    {
-      label: 'INGRESOS TOTALES',
-      value: '$25,150.00',
-      metric: '▲ +4.8% vs presupuesto',
-      bg: '#E3F2FD',
-      border: '#1976D2',
-      labelColor: '#1565C0',
-      valueColor: '#0D47A1',
-    },
-    {
-      label: 'EGRESOS TOTALES',
-      value: '$23,430.00',
-      metric: '▲ +3.7% vs presupuesto',
-      bg: '#FFEBEE',
-      border: '#C62828',
-      labelColor: '#B71C1C',
-      valueColor: '#C62828',
-    },
+  selectedYear = new Date().getFullYear();
+  selectedMonth = new Date().getMonth() + 1;
+  loading = false;
+
+  // Nombres de meses en español
+  private monthNames = [
+    'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+    'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
   ];
 
-  incomeRows = [
-    { category: 'Sueldo',  ppto: '$20,000', real: '$22,000' },
-    { category: 'Negocio', ppto: '$3,000',  real: '$2,000'  },
-    { category: 'Otros',   ppto: '$1,000',  real: '$1,150'  },
-  ];
+  // KPI cards
+  kpiCards: { label: string; value: string; bg: string; border: string; labelColor: string; valueColor: string }[] = [];
 
-  expenseSummaryRows = [
-    { category: 'Servicios', ppto: '$7,650', real: '$7,150' },
-    { category: 'Deudas',    ppto: '$7,200', real: '$8,600' },
-    { category: 'Ahorro',    ppto: '$2,600', real: '$3,100' },
-    { category: 'Gastos',    ppto: '$5,150', real: '$4,580' },
-  ];
+  // Tablas
+  incomeRows: CategoryDetailDto[] = [];
+  incomeTotalBudget = 0;
+  incomeTotalReal = 0;
 
-  serviciosRows = [
-    { category: 'Renta',       ppto: '$2,500', real: '$2,500' },
-    { category: 'Seguro carro',ppto: '$1,800', real: '$1,800' },
-    { category: 'Luz',         ppto: '$800',   real: '$800'   },
-    { category: 'Agua',        ppto: null,     real: '$350'   },
-    { category: 'Internet',    ppto: '$700',   real: '$700'   },
-  ];
+  expenseSummaryRows: { category: string; budget: number; real: number }[] = [];
+  expenseTotalBudget = 0;
+  expenseTotalReal = 0;
 
-  gastosRows = [
-    { category: 'Despensa',       ppto: '$1,500', real: '$1,500' },
-    { category: 'Compras',        ppto: null,     real: '$800'   },
-    { category: 'Comidas',        ppto: null,     real: '$1,200' },
-    { category: 'Entretenimiento',ppto: null,     real: '$580'   },
-    { category: 'Salidas',        ppto: null,     real: '$500'   },
-  ];
+  // Detalle por grupo
+  expenseGroups: ExpenseGroupDto[] = [];
 
-  chartSegments = [
-    { label: 'Servicios', value: 7150, color: '#43A047', amount: '$7,150' },
-    { label: 'Deudas',    value: 8600, color: '#E53935', amount: '$8,600' },
-    { label: 'Ahorro',    value: 3100, color: '#1976D2', amount: '$3,100' },
-    { label: 'Gastos',    value: 4580, color: '#FB8C00', amount: '$4,580' },
-  ];
+  // Gráfico de dona
+  chartSegments: { label: string; value: number; color: string }[] = [];
+  totalEgresos = 0;
 
-  readonly totalEgresos = 23430;
+  private chartColors = ['#43A047', '#E53935', '#1976D2', '#FB8C00', '#8E24AA', '#00ACC1', '#F4511E', '#6D4C41'];
+
+  get selectedMonthLabel(): string {
+    return `${this.monthNames[this.selectedMonth - 1]} ${this.selectedYear}`;
+  }
+
+  ngOnInit(): void {
+    this.loadDashboard();
+  }
+
+  changeMonth(delta: number): void {
+    this.selectedMonth += delta;
+    if (this.selectedMonth > 12) {
+      this.selectedMonth = 1;
+      this.selectedYear++;
+    } else if (this.selectedMonth < 1) {
+      this.selectedMonth = 12;
+      this.selectedYear--;
+    }
+    this.loadDashboard();
+  }
+
+  loadDashboard(): void {
+    this.loading = true;
+    this.dashboardService.getDashboard(this.selectedYear, this.selectedMonth).subscribe({
+      next: (data) => {
+        this.mapResponse(data);
+        this.loading = false;
+      },
+      error: () => {
+        this.mapEmpty();
+        this.loading = false;
+      },
+    });
+  }
+
+  private mapResponse(data: DashboardResponse): void {
+    // KPI cards
+    const s = data.summary;
+    this.kpiCards = [
+      {
+        label: 'SALDO',
+        value: this.fmt(s.balance),
+        bg: '#E8F5E9', border: '#2E7D32', labelColor: '#558B2F', valueColor: '#1B5E20',
+      },
+      {
+        label: 'INGRESOS TOTALES',
+        value: this.fmt(s.total_income),
+        bg: '#E3F2FD', border: '#1976D2', labelColor: '#1565C0', valueColor: '#0D47A1',
+      },
+      {
+        label: 'EGRESOS TOTALES',
+        value: this.fmt(s.total_expenses),
+        bg: '#FFEBEE', border: '#C62828', labelColor: '#B71C1C', valueColor: '#C62828',
+      },
+    ];
+
+    // Ingresos
+    this.incomeRows = data.income_detail ?? [];
+    this.incomeTotalBudget = this.incomeRows.reduce((sum, r) => sum + r.budget, 0);
+    this.incomeTotalReal = this.incomeRows.reduce((sum, r) => sum + r.real, 0);
+
+    // Egresos resumen (un row por grupo)
+    this.expenseGroups = data.expense_groups ?? [];
+    this.expenseSummaryRows = this.expenseGroups.map(g => ({
+      category: g.group_name,
+      budget: g.categories.reduce((sum, c) => sum + c.budget, 0),
+      real: g.categories.reduce((sum, c) => sum + c.real, 0),
+    }));
+    this.expenseTotalBudget = this.expenseSummaryRows.reduce((sum, r) => sum + r.budget, 0);
+    this.expenseTotalReal = this.expenseSummaryRows.reduce((sum, r) => sum + r.real, 0);
+
+    // Dona
+    const dist = data.expense_distribution ?? [];
+    this.totalEgresos = dist.reduce((sum, d) => sum + d.total, 0);
+    this.chartSegments = dist.map((d, i) => ({
+      label: d.group,
+      value: d.total,
+      color: this.chartColors[i % this.chartColors.length],
+    }));
+  }
+
+  private mapEmpty(): void {
+    this.kpiCards = [
+      { label: 'SALDO', value: '$0.00', bg: '#E8F5E9', border: '#2E7D32', labelColor: '#558B2F', valueColor: '#1B5E20' },
+      { label: 'INGRESOS TOTALES', value: '$0.00', bg: '#E3F2FD', border: '#1976D2', labelColor: '#1565C0', valueColor: '#0D47A1' },
+      { label: 'EGRESOS TOTALES', value: '$0.00', bg: '#FFEBEE', border: '#C62828', labelColor: '#B71C1C', valueColor: '#C62828' },
+    ];
+    this.incomeRows = [];
+    this.incomeTotalBudget = 0;
+    this.incomeTotalReal = 0;
+    this.expenseSummaryRows = [];
+    this.expenseTotalBudget = 0;
+    this.expenseTotalReal = 0;
+    this.expenseGroups = [];
+    this.chartSegments = [];
+    this.totalEgresos = 0;
+  }
+
+  fmt(value: number): string {
+    return '$' + value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  // ── Dona SVG ──────────────────────────────────────────
 
   getDonutPath(startAngle: number, endAngle: number, r = 75, cx = 100, cy = 100): string {
     const toRad = (deg: number) => (deg * Math.PI) / 180;
@@ -95,6 +169,7 @@ export class DashboardComponent {
   }
 
   getSegments() {
+    if (this.totalEgresos === 0) return [];
     let current = 0;
     return this.chartSegments.map((seg) => {
       const start = current;
@@ -104,7 +179,7 @@ export class DashboardComponent {
         path: this.getDonutPath(start, current - 0.5),
         color: seg.color,
         label: seg.label,
-        amount: seg.amount,
+        amount: this.fmt(seg.value),
       };
     });
   }

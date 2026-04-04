@@ -7,15 +7,27 @@
       <span class="db-header__title">MiDinero<span class="db-header__title-ia">IA</span></span>
     </div>
     <div class="db-header__actions">
-      <button class="db-header__month-btn">
-        Marzo 2026
-        <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-          <path d="M2 4L6 8L10 4" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      <button class="db-header__month-btn" style="display:flex;align-items:center;gap:6px;">
+        <svg (click)="changeMonth(-1)" width="12" height="12" viewBox="0 0 12 12" fill="none" style="cursor:pointer;">
+          <path d="M8 2L4 6L8 10" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        {{ selectedMonthLabel }}
+        <svg (click)="changeMonth(1)" width="12" height="12" viewBox="0 0 12 12" fill="none" style="cursor:pointer;">
+          <path d="M4 2L8 6L4 10" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
       </button>
       <div class="db-header__avatar">JD</div>
     </div>
   </header>
+
+  <!-- ── LOADING ────────────────────────────────────────── -->
+  @if (loading) {
+    <div style="display:flex;justify-content:center;padding:40px 0;">
+      <span style="color:#666;font-size:14px;">Cargando...</span>
+    </div>
+  }
+
+  @if (!loading) {
 
   <!-- ── KPI CARDS ──────────────────────────────────────── -->
   <section class="db-cards">
@@ -23,7 +35,6 @@
       <div class="db-card" [style.background]="card.bg" [style.border-left-color]="card.border">
         <span class="db-card__label" [style.color]="card.labelColor">{{ card.label }}</span>
         <span class="db-card__value" [style.color]="card.valueColor">{{ card.value }}</span>
-        <span class="db-card__metric">{{ card.metric }}</span>
       </div>
     }
   </section>
@@ -46,14 +57,14 @@
           @for (row of incomeRows; track row.category) {
             <tr>
               <td>{{ row.category }}</td>
-              <td class="db-tbl__num db-tbl__num--ppto">{{ row.ppto }}</td>
-              <td class="db-tbl__num db-tbl__num--income">{{ row.real }}</td>
+              <td class="db-tbl__num db-tbl__num--ppto">{{ fmt(row.budget) }}</td>
+              <td class="db-tbl__num db-tbl__num--income">{{ fmt(row.real) }}</td>
             </tr>
           }
           <tr class="db-tbl__total db-tbl__total--income">
             <td>Total</td>
-            <td class="db-tbl__num">$24,000</td>
-            <td class="db-tbl__num">$25,150</td>
+            <td class="db-tbl__num">{{ fmt(incomeTotalBudget) }}</td>
+            <td class="db-tbl__num">{{ fmt(incomeTotalReal) }}</td>
           </tr>
         </tbody>
       </table>
@@ -74,14 +85,14 @@
           @for (row of expenseSummaryRows; track row.category) {
             <tr>
               <td>{{ row.category }}</td>
-              <td class="db-tbl__num db-tbl__num--ppto">{{ row.ppto }}</td>
-              <td class="db-tbl__num db-tbl__num--expense">{{ row.real }}</td>
+              <td class="db-tbl__num db-tbl__num--ppto">{{ fmt(row.budget) }}</td>
+              <td class="db-tbl__num db-tbl__num--expense">{{ fmt(row.real) }}</td>
             </tr>
           }
           <tr class="db-tbl__total db-tbl__total--expense">
             <td>Total</td>
-            <td class="db-tbl__num">$22,600</td>
-            <td class="db-tbl__num">$23,430</td>
+            <td class="db-tbl__num">{{ fmt(expenseTotalBudget) }}</td>
+            <td class="db-tbl__num">{{ fmt(expenseTotalReal) }}</td>
           </tr>
         </tbody>
       </table>
@@ -89,75 +100,41 @@
 
   </div>
 
-  <!-- ── DETAIL TABLES (servicios + gastos) ───────────── -->
+  <!-- ── DETAIL TABLES (por grupo de egresos) ─────────── -->
   <div class="db-detail-grid">
-
-    <!-- SERVICIOS -->
-    <div class="db-tbl-block">
-      <div class="db-tbl-block__header db-tbl-block__header--green">SERVICIOS</div>
-      <table class="db-tbl">
-        <thead>
-          <tr>
-            <th>Categoría</th>
-            <th class="db-tbl__th--ppto">Ppto</th>
-            <th class="db-tbl__th--real">Real</th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (row of serviciosRows; track row.category) {
+    @for (group of expenseGroups; track group.group_name) {
+      <div class="db-tbl-block">
+        <div class="db-tbl-block__header db-tbl-block__header--green">{{ group.group_name | uppercase }}</div>
+        <table class="db-tbl">
+          <thead>
             <tr>
-              <td>{{ row.category }}</td>
-              <td class="db-tbl__num db-tbl__num--ppto db-tbl__num--editable">
-                {{ row.ppto ?? '...' }}
-              </td>
-              <td class="db-tbl__num db-tbl__num--income">{{ row.real }}</td>
+              <th>Categoría</th>
+              <th class="db-tbl__th--ppto">Ppto</th>
+              <th class="db-tbl__th--real">Real</th>
             </tr>
-          }
-        </tbody>
-      </table>
-      <p class="db-tbl-block__hint">
-        <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-          <circle cx="6" cy="6" r="5.5" stroke="#1976D2"/>
-          <path d="M6 5.5V9" stroke="#1976D2" stroke-linecap="round"/>
-          <circle cx="6" cy="3.5" r="0.75" fill="#1976D2"/>
-        </svg>
-        Toca cualquier celda de Ppto para editarla
-      </p>
-    </div>
-
-    <!-- GASTOS -->
-    <div class="db-tbl-block">
-      <div class="db-tbl-block__header db-tbl-block__header--orange">GASTOS</div>
-      <table class="db-tbl">
-        <thead>
-          <tr>
-            <th>Categoría</th>
-            <th class="db-tbl__th--ppto">Ppto</th>
-            <th class="db-tbl__th--real">Real</th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (row of gastosRows; track row.category) {
-            <tr>
-              <td>{{ row.category }}</td>
-              <td class="db-tbl__num db-tbl__num--ppto db-tbl__num--editable">
-                {{ row.ppto ?? '...' }}
-              </td>
-              <td class="db-tbl__num db-tbl__num--expense">{{ row.real }}</td>
-            </tr>
-          }
-        </tbody>
-      </table>
-      <p class="db-tbl-block__hint">
-        <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-          <circle cx="6" cy="6" r="5.5" stroke="#1976D2"/>
-          <path d="M6 5.5V9" stroke="#1976D2" stroke-linecap="round"/>
-          <circle cx="6" cy="3.5" r="0.75" fill="#1976D2"/>
-        </svg>
-        Toca cualquier celda de Ppto para editarla
-      </p>
-    </div>
-
+          </thead>
+          <tbody>
+            @for (row of group.categories; track row.category) {
+              <tr>
+                <td>{{ row.category }}</td>
+                <td class="db-tbl__num db-tbl__num--ppto db-tbl__num--editable">
+                  {{ row.budget > 0 ? fmt(row.budget) : '...' }}
+                </td>
+                <td class="db-tbl__num db-tbl__num--expense">{{ fmt(row.real) }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+        <p class="db-tbl-block__hint">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+            <circle cx="6" cy="6" r="5.5" stroke="#1976D2"/>
+            <path d="M6 5.5V9" stroke="#1976D2" stroke-linecap="round"/>
+            <circle cx="6" cy="3.5" r="0.75" fill="#1976D2"/>
+          </svg>
+          Toca cualquier celda de Ppto para editarla
+        </p>
+      </div>
+    }
   </div>
 
   <!-- ── DISTRIBUCIÓN ───────────────────────────────────── -->
@@ -170,7 +147,7 @@
           @for (seg of getSegments(); track seg.label) {
             <path [attr.d]="seg.path" [attr.fill]="seg.color" stroke="#fff" stroke-width="2"/>
           }
-          <text x="100" y="93" text-anchor="middle" class="db-donut__val">$23,430</text>
+          <text x="100" y="93" text-anchor="middle" class="db-donut__val">{{ fmt(totalEgresos) }}</text>
           <text x="100" y="111" text-anchor="middle" class="db-donut__sub">Total</text>
         </svg>
       </div>
@@ -188,9 +165,11 @@
     </div>
   </div>
 
+  }
+
   <!-- ── BOTTOM NAV ─────────────────────────────────────── -->
   <nav class="db-bottom-nav">
-    <button class="db-bottom-nav__item db-bottom-nav__item--active">
+    <button class="db-bottom-nav__item db-bottom-nav__item--active" routerLink="/dashboard">
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
         <rect x="3" y="3" width="7" height="7" rx="1" fill="#2E7D32"/>
         <rect x="14" y="3" width="7" height="7" rx="1" fill="#2E7D32"/>
@@ -199,7 +178,7 @@
       </svg>
       <span>Dashboard</span>
     </button>
-    <button class="db-bottom-nav__item">
+    <button class="db-bottom-nav__item" routerLink="/registrar">
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#9E9E9E" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
         <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
       </svg>
