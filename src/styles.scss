@@ -743,15 +743,16 @@ $db-transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 
 // ── Section wrapper ────────────────────────────────────
 .db-section {
-  padding: 12px 16px 0;
+  padding: 0 16px;
+  margin-top: 8px;
 }
 
 // ── KPI Cards ──────────────────────────────────────────
 .db-cards {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
-  padding: 16px;
+  gap: 8px;
+  padding: 12px 16px;
 }
 
 .db-card {
@@ -820,7 +821,7 @@ $db-transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 .db-detail-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 12px;
+  gap: 8px;
   background: transparent;
 }
 
@@ -1187,8 +1188,8 @@ $db-transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 
   .db-cards {
     grid-template-columns: 1fr;
-    gap: 10px;
-    padding: 12px;
+    gap: 8px;
+    padding: 10px 12px;
   }
 
   .db-card {
@@ -1200,12 +1201,12 @@ $db-transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     grid-template-columns: 1fr;
   }
 
-  .db-section { padding: 10px 12px 0; }
+  .db-section { padding: 0 12px; margin-top: 8px; }
 
   .db-summary-grid,
   .db-detail-grid {
     grid-template-columns: 1fr;
-    gap: 10px;
+    gap: 8px;
   }
 
   .db-tbl {
@@ -1238,14 +1239,14 @@ $db-transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 @media (min-width: 481px) and (max-width: 768px) {
   .db-cards {
     grid-template-columns: 1fr;
-    gap: 10px;
-    padding: 14px;
+    gap: 8px;
+    padding: 10px 14px;
   }
 
   .db-summary-grid,
   .db-detail-grid {
     grid-template-columns: 1fr;
-    gap: 10px;
+    gap: 8px;
   }
 
   .db-distribution__body {
@@ -1267,8 +1268,8 @@ $db-transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   .db-cards {
-    gap: 14px;
-    padding: 18px;
+    gap: 8px;
+    padding: 12px 18px;
   }
 
   .db-card__value { font-size: 26px; }
@@ -1286,17 +1287,17 @@ $db-transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   .db-cards {
-    gap: 16px;
-    padding: 20px;
+    gap: 10px;
+    padding: 12px 20px;
   }
 
   .db-card {
-    padding: 20px 22px;
+    padding: 18px 20px;
     &__value { font-size: 28px; }
     &__label { font-size: 11px; }
   }
 
-  .db-section { padding: 14px 20px 0; }
+  .db-section { padding: 0 20px; margin-top: 8px; }
 
   .db-distribution {
     padding: 24px;
