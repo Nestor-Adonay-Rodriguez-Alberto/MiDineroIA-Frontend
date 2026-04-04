@@ -1,7 +1,9 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { DashboardService } from '../core/services/dashboard.service';
+import { BudgetService } from '../core/services/budget.service';
 import {
   DashboardResponse,
   CategoryDetailDto,
@@ -12,16 +14,21 @@ import {
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, FormsModule, RouterLink],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss',
 })
 export class DashboardComponent implements OnInit {
   private dashboardService = inject(DashboardService);
+  private budgetService = inject(BudgetService);
 
   selectedYear = new Date().getFullYear();
   selectedMonth = new Date().getMonth() + 1;
   loading = false;
+
+  // Inline edit state
+  editingCategoryId: number | null = null;
+  editingValue: number | null = null;
 
   // Nombres de meses en español
   private monthNames = [
@@ -145,6 +152,46 @@ export class DashboardComponent implements OnInit {
     this.expenseGroups = [];
     this.chartSegments = [];
     this.totalEgresos = 0;
+  }
+
+  // ── Inline edit de presupuestos ─────────────────────
+
+  startEdit(row: CategoryDetailDto): void {
+    this.editingCategoryId = row.category_id;
+    this.editingValue = row.budget > 0 ? row.budget : null;
+  }
+
+  cancelEdit(): void {
+    this.editingCategoryId = null;
+    this.editingValue = null;
+  }
+
+  saveBudget(row: CategoryDetailDto): void {
+    const amount = this.editingValue ?? 0;
+    if (amount < 0) { this.cancelEdit(); return; }
+
+    this.budgetService.upsert({
+      category_id: row.category_id,
+      year: this.selectedYear,
+      month: this.selectedMonth,
+      amount,
+    }).subscribe({
+      next: () => {
+        this.cancelEdit();
+        this.loadDashboard();
+      },
+      error: () => {
+        this.cancelEdit();
+      },
+    });
+  }
+
+  onBudgetKeydown(event: KeyboardEvent, row: CategoryDetailDto): void {
+    if (event.key === 'Enter') {
+      this.saveBudget(row);
+    } else if (event.key === 'Escape') {
+      this.cancelEdit();
+    }
   }
 
   fmt(value: number): string {

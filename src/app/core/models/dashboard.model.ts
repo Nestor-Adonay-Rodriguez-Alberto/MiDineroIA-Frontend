@@ -5,6 +5,7 @@ export interface SummaryDto {
 }
 
 export interface CategoryDetailDto {
+  category_id: number;
   category: string;
   budget: number;
   real: number;

@@ -750,6 +750,19 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
     }
   }
 
+  &__input {
+    width: 80px;
+    padding: 2px 6px;
+    border: 1.5px solid #43A047;
+    border-radius: 4px;
+    font-size: 11px;
+    text-align: right;
+    color: #1B5E20;
+    background: #F1F8E9;
+    outline: none;
+    &:focus { border-color: #2E7D32; box-shadow: 0 0 0 2px rgba(46,125,50,0.15); }
+  }
+
   &__total {
     td {
       font-weight: 600;

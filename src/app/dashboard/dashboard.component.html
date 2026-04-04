@@ -114,11 +114,25 @@
             </tr>
           </thead>
           <tbody>
-            @for (row of group.categories; track row.category) {
+            @for (row of group.categories; track row.category_id) {
               <tr>
                 <td>{{ row.category }}</td>
-                <td class="db-tbl__num db-tbl__num--ppto db-tbl__num--editable">
-                  {{ row.budget > 0 ? fmt(row.budget) : '...' }}
+                <td class="db-tbl__num db-tbl__num--ppto db-tbl__num--editable" (click)="startEdit(row)">
+                  @if (editingCategoryId === row.category_id) {
+                    <input
+                      type="number"
+                      class="db-tbl__input"
+                      [ngModel]="editingValue"
+                      (ngModelChange)="editingValue = $event"
+                      (blur)="saveBudget(row)"
+                      (keydown)="onBudgetKeydown($event, row)"
+                      min="0"
+                      step="0.01"
+                      autofocus
+                    />
+                  } @else {
+                    {{ row.budget > 0 ? fmt(row.budget) : '- - -' }}
+                  }
                 </td>
                 <td class="db-tbl__num db-tbl__num--expense">{{ fmt(row.real) }}</td>
               </tr>
