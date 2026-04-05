@@ -219,16 +219,22 @@ export class DashboardComponent implements OnInit {
   getSegments() {
     if (this.totalEgresos === 0) return [];
     let current = 0;
+    const toRad = (deg: number) => (deg * Math.PI) / 180;
+    const labelR = 90;
     return this.chartSegments.map((seg) => {
       const start = current;
       const slice = (seg.value / this.totalEgresos) * 360;
       current += slice;
+      const mid = start + slice / 2;
       return {
         path: this.getDonutPath(start, current - 0.5),
         color: seg.color,
         label: seg.label,
         amount: this.fmt(seg.value),
         percentage: seg.percentage,
+        pct: Math.round((seg.value / this.totalEgresos) * 100),
+        labelX: 100 + labelR * Math.cos(toRad(mid - 90)),
+        labelY: 100 + labelR * Math.sin(toRad(mid - 90)),
       };
     });
   }
