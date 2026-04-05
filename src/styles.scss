@@ -6,9 +6,7 @@
 // custom components at https://material.angular.dev/guide/theming
 @use '@angular/material' as mat;
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+
 
 html {
   @include mat.theme((
@@ -42,6 +40,12 @@ body {
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 
+// ── PWA / Touch optimizations ──────────────────────────
+html {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
 
 
 // ═══════════════════════════════════════════════════════
@@ -52,7 +56,7 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 
 .reg-page {
   display: flex;
-  height: 100vh;
+  height: 100dvh;
   background: #E8F5E9;
   font-family: Roboto, sans-serif;
 }
@@ -211,7 +215,7 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 .reg-wrapper {
   display: flex;
   flex-direction: column;
-  height: 100vh;
+  height: 100dvh;
   background: #F1F8E9;
   font-family: Roboto, sans-serif;
   position: relative;
@@ -674,7 +678,8 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 
 .reg-bottom-nav {
   display: flex;
-  height: 60px;
+  height: calc(60px + env(safe-area-inset-bottom, 0px));
+  padding-bottom: env(safe-area-inset-bottom, 0px);
   background: #ffffff;
   border-top: 1px solid #E0E0E0;
   align-items: center;
@@ -706,10 +711,10 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 // ═══════════════════════════════════════════════════════
 
 .db-wrapper {
-  min-height: 100vh;
+  min-height: 100dvh;
   background: #FAFAFA;
   font-family: Roboto, sans-serif;
-  padding-bottom: 64px;
+  padding-bottom: calc(64px + env(safe-area-inset-bottom, 0px));
 }
 
 // ── Header ──────────────────────────────────────────────
@@ -762,8 +767,8 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
   &__month-btn {
     display: flex;
     align-items: center;
-    gap: 6px;
-    padding: 0 14px;
+    gap: 4px;
+    padding: 0 6px;
     height: 36px;
     background: rgba(255, 255, 255, 0.15);
     border: none;
@@ -771,10 +776,24 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
     color: #ffffff;
     font-size: 13px;
     font-family: Roboto, sans-serif;
-    cursor: pointer;
     white-space: nowrap;
+  }
 
-    &:hover { background: rgba(255,255,255,0.22); }
+  &__arrow {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
+    background: none;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    padding: 0;
+
+    &:hover { background: rgba(255, 255, 255, 0.15); }
+    &:active { background: rgba(255, 255, 255, 0.25); }
   }
 
   &__avatar {
@@ -944,7 +963,7 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
   }
 
   td {
-    padding: 10px 12px;
+    padding: 12px 12px;
     border-bottom: 1px solid #F0F0F0;
     color: #444444;
     font-size: 12px;
@@ -963,7 +982,38 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
     &--editable {
       color: #43A047;
       cursor: pointer;
+      min-height: 44px;
+      display: table-cell;
+      vertical-align: middle;
+      -webkit-tap-highlight-color: rgba(46, 125, 50, 0.1);
       &:hover { background: #E8F5E9; }
+    }
+  }
+
+  &__input {
+    width: 100%;
+    max-width: 90px;
+    height: 32px;
+    padding: 4px 8px;
+    border: 2px solid #43A047;
+    border-radius: 6px;
+    font-size: 12px;
+    font-family: Roboto, sans-serif;
+    color: #1B5E20;
+    background: #ffffff;
+    text-align: right;
+    outline: none;
+    box-sizing: border-box;
+
+    &:focus {
+      border-color: #2E7D32;
+      box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.15);
+    }
+
+    &::-webkit-outer-spin-button,
+    &::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
     }
   }
 
@@ -1081,13 +1131,67 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
   }
 }
 
-// ── Donut label ─────────────────────────────────────────
+// ── Donut labels ────────────────────────────────────────
 
 .db-donut__label {
   font-size: 11px;
   fill: #212121;
   font-weight: 500;
   font-family: Roboto, sans-serif;
+}
+
+.db-donut__seg-label {
+  font-size: 7px;
+  fill: #444444;
+  font-weight: 500;
+  font-family: Roboto, sans-serif;
+}
+
+.db-donut__seg-pct {
+  font-size: 6px;
+  fill: #757575;
+  font-family: Roboto, sans-serif;
+}
+
+.db-donut__sub {
+  font-size: 9px;
+  fill: #757575;
+  font-family: Roboto, sans-serif;
+}
+
+// ── Skeleton loading ────────────────────────────────────
+
+.db-skeleton {
+  padding: 16px;
+
+  &__cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  &__card {
+    height: 80px;
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: db-shimmer 1.5s infinite;
+    border-radius: 8px;
+  }
+
+  &__table {
+    height: 200px;
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: db-shimmer 1.5s infinite;
+    border-radius: 8px;
+    margin-bottom: 16px;
+  }
+}
+
+@keyframes db-shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
 }
 
 // ── Bottom nav ──────────────────────────────────────────
@@ -1097,7 +1201,8 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
   bottom: 0;
   left: 0;
   right: 0;
-  height: 60px;
+  height: calc(60px + env(safe-area-inset-bottom, 0px));
+  padding-bottom: env(safe-area-inset-bottom, 0px);
   background: #ffffff;
   border-top: 1px solid #E0E0E0;
   display: flex;
@@ -1151,6 +1256,10 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
   .db-cards {
     grid-template-columns: 1fr;
     gap: 10px;
+  }
+
+  .db-skeleton__cards {
+    grid-template-columns: 1fr;
   }
 
   .db-main-grid {
