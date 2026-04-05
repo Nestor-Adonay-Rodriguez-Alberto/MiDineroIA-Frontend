@@ -1,4 +1,4 @@
 export const environment = {
   production: false,
-  apiUrl: 'http://localhost:7184'
+  apiUrl: 'https://midineroia-api-dyamdbdha3g2f0au.canadacentral-01.azurewebsites.net'
 };
