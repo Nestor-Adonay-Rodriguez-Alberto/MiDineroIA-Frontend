@@ -55,7 +55,7 @@ export class DashboardComponent implements OnInit {
   chartSegments: { label: string; value: number; percentage: number; color: string }[] = [];
   totalEgresos = 0;
 
-  private chartColors = ['#43A047', '#E53935', '#1976D2', '#FB8C00', '#8E24AA', '#00ACC1', '#F4511E', '#6D4C41'];
+  private chartColors = ['#43A047', '#8BC34A', '#C5E1A5', '#558B2F', '#AED581', '#1976D2', '#FB8C00', '#8E24AA'];
 
   get selectedMonthLabel(): string {
     return `${this.monthNames[this.selectedMonth - 1]} ${this.selectedYear}`;
@@ -92,32 +92,17 @@ export class DashboardComponent implements OnInit {
   }
 
   private mapResponse(data: DashboardResponse): void {
-    // KPI cards
     const s = data.summary;
     this.kpiCards = [
-      {
-        label: 'SALDO',
-        value: this.fmt(s.balance),
-        bg: '#E8F5E9', border: '#2E7D32', labelColor: '#558B2F', valueColor: '#1B5E20',
-      },
-      {
-        label: 'INGRESOS TOTALES',
-        value: this.fmt(s.total_income),
-        bg: '#E3F2FD', border: '#1976D2', labelColor: '#1565C0', valueColor: '#0D47A1',
-      },
-      {
-        label: 'EGRESOS TOTALES',
-        value: this.fmt(s.total_expenses),
-        bg: '#FFEBEE', border: '#C62828', labelColor: '#B71C1C', valueColor: '#C62828',
-      },
+      { label: 'SALDO', value: this.fmt(s.balance), bg: '#E8F5E9', border: '#2E7D32', labelColor: '#558B2F', valueColor: '#1B5E20' },
+      { label: 'INGRESOS TOTALES', value: this.fmt(s.total_income), bg: '#E3F2FD', border: '#1976D2', labelColor: '#1565C0', valueColor: '#0D47A1' },
+      { label: 'EGRESOS TOTALES', value: this.fmt(s.total_expenses), bg: '#FFEBEE', border: '#C62828', labelColor: '#B71C1C', valueColor: '#C62828' },
     ];
 
-    // Ingresos
     this.incomeRows = data.income_detail ?? [];
     this.incomeTotalBudget = this.incomeRows.reduce((sum, r) => sum + r.budget, 0);
     this.incomeTotalReal = this.incomeRows.reduce((sum, r) => sum + r.real, 0);
 
-    // Egresos resumen (un row por grupo)
     this.expenseGroups = data.expense_groups ?? [];
     this.expenseSummaryRows = this.expenseGroups.map(g => ({
       category: g.group_name,
@@ -127,7 +112,6 @@ export class DashboardComponent implements OnInit {
     this.expenseTotalBudget = this.expenseSummaryRows.reduce((sum, r) => sum + r.budget, 0);
     this.expenseTotalReal = this.expenseSummaryRows.reduce((sum, r) => sum + r.real, 0);
 
-    // Dona
     const dist = data.expense_distribution ?? [];
     this.totalEgresos = dist.reduce((sum, d) => sum + d.total, 0);
     this.chartSegments = dist.map((d, i) => ({
@@ -188,11 +172,8 @@ export class DashboardComponent implements OnInit {
   }
 
   onBudgetKeydown(event: KeyboardEvent, row: CategoryDetailDto): void {
-    if (event.key === 'Enter') {
-      this.saveBudget(row);
-    } else if (event.key === 'Escape') {
-      this.cancelEdit();
-    }
+    if (event.key === 'Enter') { this.saveBudget(row); }
+    else if (event.key === 'Escape') { this.cancelEdit(); }
   }
 
   fmt(value: number): string {
