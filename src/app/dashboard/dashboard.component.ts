@@ -152,8 +152,13 @@ export class DashboardComponent implements OnInit {
   }
 
   saveBudget(row: CategoryDetailDto): void {
-    const amount = this.editingValue ?? 0;
-    if (amount < 0) { this.cancelEdit(); return; }
+    const amount = this.editingValue;
+
+    // Si no escribió nada o el valor no cambió, solo cerrar sin petición
+    if (amount === null || amount === undefined || amount < 0 || amount === row.budget) {
+      this.cancelEdit();
+      return;
+    }
 
     this.budgetService.upsert({
       category_id: row.category_id,
