@@ -6,235 +6,415 @@
       <span class="reg-header__badge">$</span>
       <span class="reg-header__title">MiDinero<span class="reg-header__title-ia">IA</span></span>
     </div>
-    <div class="reg-header__avatar">JD</div>
+    <a routerLink="/profile" class="reg-header__avatar">{{ userInitials }}</a>
   </header>
 
   <!-- ── CHAT AREA ─────────────────────────────────────── -->
   <div class="reg-chat">
 
-    <!-- Date pill -->
-    <div class="reg-date-pill">{{ today }}</div>
+    @if (loadingHistory) {
+      <div class="reg-date-pill">Cargando mensajes...</div>
+    }
 
-    <!-- ─ Mensaje usuario: presupuesto ─ -->
-    <div class="reg-msg reg-msg--user">
-      <div class="reg-bubble reg-bubble--user">
-        Mi presupuesto de despensa es $1,200 y de servicios $7,000 al mes
-      </div>
-    </div>
+    @if (!loadingHistory && messages.length === 0) {
+      <div class="reg-date-pill">Escribe tu primer gasto para comenzar</div>
+    }
 
-    <!-- ─ Respuesta IA: tabla presupuesto ─ -->
-    <div class="reg-msg reg-msg--ai">
-      <div class="reg-bubble reg-bubble--ai">
-        <p class="reg-bubble__text">Entendido, voy a configurar estos presupuestos para Marzo 2026:</p>
+    @for (msg of messages; track $index) {
 
-        <div class="reg-budget-table">
-          <div class="reg-budget-table__header">
-            <span>Categoría</span>
-            <span>Presupuesto</span>
-          </div>
-          <div class="reg-budget-table__row">
-            <span>Despensa</span>
-            <span class="reg-budget-table__value">$1,200.00</span>
-          </div>
-          <div class="reg-budget-table__row">
-            <span>Servicios (grupo)</span>
-            <span class="reg-budget-table__value">$7,000.00</span>
-          </div>
-          <div class="reg-budget-table__row reg-budget-table__row--muted">
-            <span>Período</span>
-            <span class="reg-budget-table__period">Marzo 2026</span>
+      <!-- Date separator -->
+      @if (msg.type === 'date-separator') {
+        <div class="reg-date-pill">{{ msg.content }}</div>
+      }
+
+      <!-- Typing indicator -->
+      @if (msg.type === 'typing') {
+        <div class="reg-msg reg-msg--ai">
+          <div class="reg-bubble reg-bubble--ai reg-bubble--typing">
+            <span class="reg-dot"></span>
+            <span class="reg-dot"></span>
+            <span class="reg-dot"></span>
           </div>
         </div>
-      </div>
-    </div>
+      }
 
-    <!-- ─ Transacción 1 ─ -->
-    <div class="reg-msg reg-msg--user">
-      <div class="reg-bubble reg-bubble--user">Gasté $85 en Super Selectos</div>
-    </div>
-
-    <div class="reg-msg reg-msg--ai">
-      <div class="reg-bubble reg-bubble--ai reg-bubble--form">
-        <div class="reg-form-title">
-          <span class="reg-form-title__dot"></span>
-          Registra tu gasto:
-        </div>
-
-        <div class="reg-form-card">
-          <div class="reg-form-row">
-            <span class="reg-form-row__label">Monto:</span>
-            <span class="reg-form-row__value">$85.00</span>
-          </div>
-          <div class="reg-form-row">
-            <span class="reg-form-row__label">Categoría:</span>
-            <span class="reg-form-row__value">Despensa</span>
-          </div>
-          <div class="reg-form-row">
-            <span class="reg-form-row__label">Comercio:</span>
-            <span class="reg-form-row__value">Super Selectos</span>
-          </div>
-          <div class="reg-form-row">
-            <span class="reg-form-row__label">Fecha:</span>
-            <span class="reg-form-row__value">29/03/2026</span>
-          </div>
-
-          <div class="reg-form-divider"></div>
-
-          <div class="reg-form-budget">
-            <div class="reg-form-budget__labels">
-              <span class="reg-form-budget__text">Presupuesto restante</span>
-              <span class="reg-form-budget__amount">$1,115.00 de $1,200.00</span>
+      <!-- User bubble -->
+      @if (msg.type === 'user') {
+        <div class="reg-msg reg-msg--user">
+          @if (msg.imageUrl) {
+            <div class="reg-image-msg">
+              <div class="reg-image-msg__thumb">
+                <img [src]="msg.imageUrl" alt="imagen"
+                     style="width:100%;height:100%;object-fit:cover;" />
+              </div>
+              @if (msg.time) {
+                <span class="reg-msg-time reg-msg-time--image">{{ msg.time }}</span>
+              }
             </div>
-            <div class="reg-form-budget__bar">
-              <div class="reg-form-budget__fill" style="width: 92.9%"></div>
+          } @else {
+            <div class="reg-bubble reg-bubble--user">
+              {{ msg.content }}
+              @if (msg.time) {
+                <span class="reg-msg-time">{{ msg.time }}</span>
+              }
+            </div>
+          }
+        </div>
+
+        <!-- Tarjeta de confirmación del historial (USER con transactionInfo) -->
+        @if (hasConfirmCard(msg) && msg.transactionInfo) {
+          <div class="reg-msg reg-msg--ai">
+            <div class="reg-bubble reg-bubble--ai reg-bubble--form">
+
+              <div class="reg-form-title">
+                <span class="reg-form-title__dot"></span>
+                {{ msg.transactionInfo.is_confirmed && !msg.editing ? 'Gasto registrado:' : 'Registra tu gasto:' }}
+              </div>
+
+              <!-- Edit form (historial) -->
+              @if (msg.editing) {
+                <div class="reg-form-card">
+                  <div class="reg-form-row">
+                    <span class="reg-form-row__label">Monto:</span>
+                    <input class="reg-edit-input" type="number" min="0" step="0.01"
+                           [(ngModel)]="msg.editAmount" placeholder="0.00" />
+                  </div>
+                  <div class="reg-form-row">
+                    <span class="reg-form-row__label">Grupo:</span>
+                    <select class="reg-edit-input"
+                            [ngModel]="msg.editGroupId"
+                            (ngModelChange)="msg.editGroupId = $event ? +$event : null; msg.editCategoryId = undefined">
+                      <option [ngValue]="null">— Selecciona un grupo —</option>
+                      @for (group of categoryGroups; track group.id) {
+                        <option [ngValue]="group.id">{{ group.name }}</option>
+                      }
+                    </select>
+                  </div>
+                  @if (msg.editGroupId) {
+                    <div class="reg-form-row">
+                      <span class="reg-form-row__label">Categoría:</span>
+                      <select class="reg-edit-input" [(ngModel)]="msg.editCategoryId">
+                        <option [ngValue]="undefined">— Selecciona —</option>
+                        @for (cat of getCategoriesForGroup(msg.editGroupId); track cat.id) {
+                          <option [ngValue]="cat.id">{{ cat.name }}</option>
+                        }
+                      </select>
+                    </div>
+                  }
+                  <div class="reg-form-row">
+                    <span class="reg-form-row__label">Descripción:</span>
+                    <input class="reg-edit-input" type="text"
+                           [(ngModel)]="msg.editDescription" placeholder="Descripción" />
+                  </div>
+                </div>
+                <div class="reg-form-actions">
+                  <button class="reg-btn reg-btn--primary" (click)="saveEdit(msg)"
+                          [disabled]="msg.confirming || !msg.editCategoryId || !msg.editAmount">
+                    {{ msg.confirming ? 'Guardando...' : '✓ Guardar' }}
+                  </button>
+                  <button class="reg-btn reg-btn--secondary" (click)="cancelEdit(msg)" [disabled]="msg.confirming">
+                    Cancelar
+                  </button>
+                </div>
+
+              <!-- Display card (historial) -->
+              } @else {
+                <div class="reg-form-card">
+                  <div class="reg-form-row">
+                    <span class="reg-form-row__label">Monto:</span>
+                    <span class="reg-form-row__value">{{ formatAmount(msg.transactionInfo.amount) }}</span>
+                  </div>
+                  <div class="reg-form-row">
+                    <span class="reg-form-row__label">Categoría:</span>
+                    <span class="reg-form-row__value">{{ msg.transactionInfo.category_name }}</span>
+                  </div>
+                  @if (msg.transactionInfo.merchant) {
+                    <div class="reg-form-row">
+                      <span class="reg-form-row__label">Comercio:</span>
+                      <span class="reg-form-row__value">{{ msg.transactionInfo.merchant }}</span>
+                    </div>
+                  }
+                  <div class="reg-form-row">
+                    <span class="reg-form-row__label">Fecha:</span>
+                    <span class="reg-form-row__value">{{ formatDate(msg.transactionInfo.transaction_date) }}</span>
+                  </div>
+                </div>
+
+                <!-- Confirmado -->
+                @if (msg.confirmed) {
+                  <div class="reg-confirmed-row">
+                    <span class="reg-confirmed-check">✓</span>
+                    <span class="reg-confirmed-text">Confirmado</span>
+                  </div>
+                } @else {
+                  <div class="reg-form-actions">
+                    <button class="reg-btn reg-btn--primary" (click)="confirmar(msg)" [disabled]="msg.confirming">
+                      {{ msg.confirming ? 'Confirmando...' : '✓ Confirmar' }}
+                    </button>
+                    <button class="reg-btn reg-btn--secondary" (click)="openEdit(msg)" [disabled]="msg.confirming">
+                      Editar
+                    </button>
+                  </div>
+                }
+              }
+
             </div>
           </div>
-        </div>
+        }
+      }
 
-        <div class="reg-form-actions">
-          <button class="reg-btn reg-btn--primary" (click)="confirmar(1)">✓ Confirmar</button>
-          <button class="reg-btn reg-btn--secondary">Editar</button>
-        </div>
-      </div>
-    </div>
+      <!-- AI message -->
+      @if (msg.type === 'ai') {
+        <div class="reg-msg reg-msg--ai">
 
-    <!-- ─ Transacción 2 ─ -->
-    <div class="reg-msg reg-msg--user">
-      <div class="reg-bubble reg-bubble--user">Gasté $350 en gasolina</div>
-    </div>
+          <!-- ── REGISTER_TRANSACTION confirm card ── -->
+          @if (hasConfirmCard(msg)) {
+            <div class="reg-bubble reg-bubble--ai reg-bubble--form">
 
-    <div class="reg-msg reg-msg--ai">
-      <div class="reg-bubble reg-bubble--ai reg-bubble--form">
-        <div class="reg-form-title">
-          <span class="reg-form-title__dot"></span>
-          Registra tu gasto:
-        </div>
+              <div class="reg-form-title" [class.reg-form-title--ai]="msg.chatResponse?.data?.confidence_score >= 70">
+                <span class="reg-form-title__dot" [class.reg-form-title__dot--ai]="msg.chatResponse?.data?.confidence_score >= 70"></span>
+                {{ msg.chatResponse?.data?.confidence_score >= 70 ? 'Extraje los datos de tu factura:' : 'Registra tu gasto:' }}
+              </div>
 
-        <div class="reg-form-card">
-          <div class="reg-form-row">
-            <span class="reg-form-row__label">Monto:</span>
-            <span class="reg-form-row__value">$350.00</span>
-          </div>
-          <div class="reg-form-row">
-            <span class="reg-form-row__label">Categoría:</span>
-            <span class="reg-form-row__value">Servicios</span>
-          </div>
-          <div class="reg-form-row">
-            <span class="reg-form-row__label">Comercio:</span>
-            <span class="reg-form-row__value">Shell</span>
-          </div>
-          <div class="reg-form-row">
-            <span class="reg-form-row__label">Fecha:</span>
-            <span class="reg-form-row__value">29/03/2026</span>
-          </div>
+              <!-- Edit form -->
+              @if (msg.editing) {
+                <div class="reg-form-card">
+                  <div class="reg-form-row">
+                    <span class="reg-form-row__label">Monto:</span>
+                    <input class="reg-edit-input" type="number" min="0" step="0.01"
+                           [(ngModel)]="msg.editAmount" placeholder="0.00" />
+                  </div>
+                  <div class="reg-form-row">
+                    <span class="reg-form-row__label">Grupo:</span>
+                    <select class="reg-edit-input"
+                            [ngModel]="msg.editGroupId"
+                            (ngModelChange)="msg.editGroupId = $event ? +$event : null; msg.editCategoryId = undefined">
+                      <option [ngValue]="null">— Selecciona un grupo —</option>
+                      @for (group of categoryGroups; track group.id) {
+                        <option [ngValue]="group.id">{{ group.name }}</option>
+                      }
+                    </select>
+                  </div>
+                  @if (msg.editGroupId) {
+                    <div class="reg-form-row">
+                      <span class="reg-form-row__label">Categoría:</span>
+                      <select class="reg-edit-input" [(ngModel)]="msg.editCategoryId">
+                        <option [ngValue]="undefined">— Selecciona —</option>
+                        @for (cat of getCategoriesForGroup(msg.editGroupId); track cat.id) {
+                          <option [ngValue]="cat.id">{{ cat.name }}</option>
+                        }
+                      </select>
+                    </div>
+                  }
+                  <div class="reg-form-row">
+                    <span class="reg-form-row__label">Descripción:</span>
+                    <input class="reg-edit-input" type="text"
+                           [(ngModel)]="msg.editDescription" placeholder="Descripción" />
+                  </div>
+                </div>
+                <div class="reg-form-actions">
+                  <button class="reg-btn reg-btn--primary" (click)="saveEdit(msg)"
+                          [disabled]="msg.confirming || !msg.editCategoryId || !msg.editAmount">
+                    {{ msg.confirming ? 'Guardando...' : '✓ Guardar' }}
+                  </button>
+                  <button class="reg-btn reg-btn--secondary" (click)="cancelEdit(msg)" [disabled]="msg.confirming">
+                    Cancelar
+                  </button>
+                </div>
 
-          <div class="reg-form-divider"></div>
+              <!-- Display card -->
+              } @else {
+                <div class="reg-form-card" [class.reg-form-card--ai]="msg.chatResponse?.data?.confidence_score >= 70">
+                  <div class="reg-form-row">
+                    <span class="reg-form-row__label">Monto:</span>
+                    <span class="reg-form-row__value" [class.reg-form-row__value--ai]="msg.chatResponse?.data?.confidence_score >= 70">
+                      {{ formatAmount(msg.chatResponse?.data?.amount) }}
+                    </span>
+                  </div>
+                  <div class="reg-form-row">
+                    <span class="reg-form-row__label">Categoría:</span>
+                    <span class="reg-form-row__value">{{ msg.chatResponse?.data?.category_name }}</span>
+                  </div>
+                  @if (msg.chatResponse?.data?.merchant) {
+                    <div class="reg-form-row">
+                      <span class="reg-form-row__label">Comercio:</span>
+                      <span class="reg-form-row__value">{{ msg.chatResponse?.data?.merchant }}</span>
+                    </div>
+                  }
+                  <div class="reg-form-row">
+                    <span class="reg-form-row__label">Fecha:</span>
+                    <span class="reg-form-row__value">{{ formatDate(msg.chatResponse?.data?.transaction_date) }}</span>
+                  </div>
 
-          <div class="reg-form-budget">
-            <div class="reg-form-budget__labels">
-              <span class="reg-form-budget__text">Presupuesto restante</span>
-              <span class="reg-form-budget__amount">$6,650.00 de $7,000.00</span>
+                  @if (msg.chatResponse?.budget_info; as bi) {
+                    <div class="reg-form-divider"></div>
+                    <div class="reg-form-budget">
+                      <div class="reg-form-budget__labels">
+                        <span class="reg-form-budget__text">Presupuesto restante</span>
+                        <span class="reg-form-budget__amount">
+                          {{ formatAmount(bi.remaining) }} de {{ formatAmount(bi.budget) }}
+                        </span>
+                      </div>
+                      <div class="reg-form-budget__bar">
+                        <div class="reg-form-budget__fill"
+                             [style.width.%]="bi.budget > 0 ? (bi.remaining / bi.budget) * 100 : 0">
+                        </div>
+                      </div>
+                    </div>
+                  }
+                </div>
+
+                @if (msg.chatResponse?.data?.confidence_score >= 70) {
+                  <div class="reg-ai-badge">🤖 Datos extraídos automáticamente con IA</div>
+                }
+
+                @if (msg.chatResponse?.suggested_alternatives?.length) {
+                  <div class="reg-alternatives">
+                    <span class="reg-alternatives__label">¿Otra categoría?</span>
+                    @for (alt of msg.chatResponse!.suggested_alternatives!; track alt.category_id) {
+                      <button class="reg-btn reg-btn--alt"
+                              (click)="selectAlternative(msg, alt.category_id, alt.category_name)"
+                              [disabled]="msg.confirming">
+                        {{ alt.category_name }}
+                      </button>
+                    }
+                  </div>
+                }
+
+                <div class="reg-form-actions">
+                  <button class="reg-btn reg-btn--primary" (click)="confirmar(msg)" [disabled]="msg.confirming">
+                    {{ msg.confirming ? 'Confirmando...' : '✓ Confirmar' }}
+                  </button>
+                  <button class="reg-btn reg-btn--secondary" (click)="openEdit(msg)" [disabled]="msg.confirming">
+                    Editar
+                  </button>
+                </div>
+              }
+
             </div>
-            <div class="reg-form-budget__bar">
-              <div class="reg-form-budget__fill" style="width: 95%"></div>
+
+          <!-- ── Confirmed transaction (checkmark state) ── -->
+          } @else if (msg.confirmed && msg.chatResponse?.intent === 'REGISTER_TRANSACTION') {
+            <div class="reg-bubble reg-bubble--ai reg-bubble--confirmed">
+              <span class="reg-confirmed-check">✓</span>
+              <span class="reg-confirmed-text">{{ msg.content }}</span>
             </div>
-          </div>
+
+          <!-- ── SET_BUDGET confirm card ── -->
+          } @else if (hasBudgetConfirmCard(msg)) {
+            <div class="reg-bubble reg-bubble--ai reg-bubble--form">
+              <div class="reg-form-title">
+                <span class="reg-form-title__dot"></span>
+                Configurar presupuestos:
+              </div>
+
+              @if (msg.editingBudgets) {
+                <!-- Edit form -->
+                <div class="reg-form-card">
+                  @for (b of msg.chatResponse!.data!.budgets; track b.category_id) {
+                    <div class="reg-form-row">
+                      <span class="reg-form-row__label">{{ b.category_name }}:</span>
+                      <input class="reg-edit-input" type="number" min="0" step="0.01"
+                             [ngModel]="msg.editBudgetAmounts![b.category_id]"
+                             (ngModelChange)="msg.editBudgetAmounts![b.category_id] = $event"
+                             placeholder="0.00" />
+                    </div>
+                  }
+                </div>
+                <div class="reg-form-actions">
+                  <button class="reg-btn reg-btn--primary" (click)="saveBudgetEdit(msg)" [disabled]="msg.confirming">
+                    {{ msg.confirming ? 'Guardando...' : '✓ Guardar' }}
+                  </button>
+                  <button class="reg-btn reg-btn--secondary" (click)="cancelBudgetEdit(msg)" [disabled]="msg.confirming">
+                    Cancelar
+                  </button>
+                </div>
+              } @else {
+                <!-- Display table -->
+                <div class="reg-budget-table">
+                  <div class="reg-budget-table__header">
+                    <span>Categoría</span>
+                    <span>Presupuesto</span>
+                  </div>
+                  @for (b of msg.chatResponse!.data!.budgets; track b.category_id) {
+                    <div class="reg-budget-table__row">
+                      <span>{{ b.category_name }}</span>
+                      <span class="reg-budget-table__value">{{ formatAmount(b.amount) }}</span>
+                    </div>
+                  }
+                </div>
+                <div class="reg-form-actions">
+                  <button class="reg-btn reg-btn--primary" (click)="confirmar(msg)" [disabled]="msg.confirming">
+                    {{ msg.confirming ? 'Confirmando...' : '✓ Confirmar' }}
+                  </button>
+                  <button class="reg-btn reg-btn--secondary" (click)="openBudgetEdit(msg)" [disabled]="msg.confirming">
+                    Editar
+                  </button>
+                </div>
+              }
+            </div>
+
+          <!-- ── Plain AI bubble ── -->
+          } @else {
+            <div class="reg-bubble reg-bubble--ai">
+              <p class="reg-bubble__text">{{ msg.content }}</p>
+              @if (msg.time) {
+                <span class="reg-msg-time">{{ msg.time }}</span>
+              }
+            </div>
+          }
+
         </div>
+      }
 
-        <div class="reg-form-actions">
-          <button class="reg-btn reg-btn--primary" (click)="confirmar(2)">✓ Confirmar</button>
-          <button class="reg-btn reg-btn--secondary">Editar</button>
-        </div>
-      </div>
-    </div>
+    }
 
-    <!-- ─ Mensaje de imagen (usuario sube factura) ─ -->
-    <div class="reg-msg reg-msg--user">
-      <div class="reg-image-msg">
-        <div class="reg-image-msg__thumb">
-          <!-- Placeholder imagen -->
-          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#bdbdbd" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-            <rect x="3" y="3" width="18" height="18" rx="2"/>
-            <circle cx="8.5" cy="8.5" r="1.5"/>
-            <polyline points="21 15 16 10 5 21"/>
-          </svg>
-        </div>
-        <span class="reg-image-msg__name">factura_marzo.jpg</span>
-      </div>
-    </div>
-
-    <div class="reg-msg reg-msg--user">
-      <button class="reg-btn reg-btn--primary reg-btn--invoice">
-        Registra esta factura
-      </button>
-    </div>
-
-    <!-- ─ Transacción 3 (IA) ─ -->
-    <div class="reg-msg reg-msg--ai">
-      <div class="reg-bubble reg-bubble--ai reg-bubble--form">
-
-        <div class="reg-form-title reg-form-title--ai">
-          <span class="reg-form-title__dot reg-form-title__dot--ai"></span>
-          Extraje los datos de tu factura:
-        </div>
-
-        <div class="reg-form-card reg-form-card--ai">
-          <div class="reg-form-row">
-            <span class="reg-form-row__label">Monto:</span>
-            <span class="reg-form-row__value reg-form-row__value--ai">$1,250.00</span>
-          </div>
-          <div class="reg-form-row">
-            <span class="reg-form-row__label">Categoría:</span>
-            <span class="reg-form-row__value">Gastos</span>
-          </div>
-          <div class="reg-form-row">
-            <span class="reg-form-row__label">Comercio:</span>
-            <span class="reg-form-row__value">Supermercado XYZ</span>
-          </div>
-          <div class="reg-form-row">
-            <span class="reg-form-row__label">Fecha:</span>
-            <span class="reg-form-row__value">28/03/2026</span>
-          </div>
-        </div>
-
-        <div class="reg-ai-badge">
-          🤖 Datos extraídos automáticamente con IA
-        </div>
-
-        <div class="reg-form-actions">
-          <button class="reg-btn reg-btn--primary" (click)="confirmar(3)">✓ Confirmar</button>
-          <button class="reg-btn reg-btn--secondary">Editar</button>
-        </div>
-      </div>
-    </div>
+    <div #chatBottom></div>
 
   </div>
 
   <!-- ── INPUT BAR ─────────────────────────────────────── -->
   <div class="reg-input-bar-wrap">
-  <div class="reg-input-bar">
-    <button class="reg-input-bar__attach" aria-label="Adjuntar archivo">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#757575" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M21.44 11.05L12.25 20.24a6 6 0 0 1-8.49-8.49l9.2-9.19a4 4 0 0 1 5.66 5.65L9.41 17.42a2 2 0 0 1-2.83-2.83l8.49-8.48"/>
-      </svg>
-    </button>
-    <div class="reg-input-field">
-      <span class="reg-input-field__placeholder">Escribe tu gasto o pega una imagen...</span>
+    @if (imageError) {
+      <div class="reg-image-error">{{ imageError }}</div>
+    }
+    @if (pendingImagePreview) {
+      <div class="reg-image-preview">
+        <img [src]="pendingImagePreview" alt="preview" class="reg-image-preview__thumb" />
+        <span class="reg-image-preview__label">Imagen adjunta — escribe un mensaje para enviar</span>
+        <button class="reg-image-preview__remove" (click)="cancelPendingImage()" aria-label="Quitar imagen">✕</button>
+      </div>
+    }
+    <div class="reg-input-bar">
+      <input #fileInput type="file" accept="image/jpeg,image/png,image/webp"
+             style="display:none" (change)="onFileSelected($event)" />
+      <button class="reg-input-bar__attach" aria-label="Adjuntar archivo"
+              [disabled]="sending" (click)="triggerFileInput()">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#757575" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21.44 11.05L12.25 20.24a6 6 0 0 1-8.49-8.49l9.2-9.19a4 4 0 0 1 5.66 5.65L9.41 17.42a2 2 0 0 1-2.83-2.83l8.49-8.48"/>
+        </svg>
+      </button>
+      <input
+        class="reg-input-field reg-input-field--input"
+        type="text"
+        placeholder="Escribe tu gasto o pega una imagen..."
+        [(ngModel)]="inputText"
+        (keydown)="onKeydown($event)"
+        [disabled]="sending"
+        autocomplete="off"
+      />
+      <button class="reg-send-btn" aria-label="Enviar" (click)="send()" [disabled]="sending || !inputText.trim()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+          <path d="M22 2L11 13" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M22 2L15 22L11 13L2 9L22 2Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
     </div>
-    <button class="reg-send-btn" aria-label="Enviar">
-      <!-- Avión de papel -->
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-        <path d="M22 2L11 13" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        <path d="M22 2L15 22L11 13L2 9L22 2Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
-    </button>
   </div>
-  </div><!-- /reg-input-bar-wrap -->
 
   <!-- ── BOTTOM NAV ─────────────────────────────────────── -->
   <nav class="reg-bottom-nav">
     <a routerLink="/dashboard" class="reg-bottom-nav__item">
-      <!-- Grid / Dashboard icon -->
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
         <rect x="3" y="3" width="7" height="7" rx="1" fill="#9E9E9E"/>
         <rect x="14" y="3" width="7" height="7" rx="1" fill="#9E9E9E"/>
@@ -244,7 +424,6 @@
       <span>Dashboard</span>
     </a>
     <a routerLink="/registrar" class="reg-bottom-nav__item reg-bottom-nav__item--active">
-      <!-- Chat bubble icon -->
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2E7D32" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
       </svg>

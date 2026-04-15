@@ -24,12 +24,25 @@ export interface ChatResponse {
   suggested_alternatives: CategoryAlternative[] | null;
 }
 
+export interface TransactionInfoDto {
+  id: number;
+  amount: number;
+  description: string | null;
+  merchant: string | null;
+  category_name: string;
+  group_name: string;
+  transaction_date: string;
+  source: string;
+  is_confirmed: boolean;
+}
+
 export interface ChatMessage {
   id: number;
   message_type: string;
   content: string;
   image_url: string | null;
   created_at: string;
+  transaction: TransactionInfoDto | null;
 }
 
 export interface ChatHistoryResponse {

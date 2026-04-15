@@ -1,4 +1,4 @@
 export const environment = {
   production: false,
-  apiUrl: 'http://localhost:7184'
+  apiUrl: 'https://midinero-api.azurewebsites.net'
 };

@@ -17,11 +17,8 @@ export interface CategoryDto {
 }
 
 export interface CategoryGroupDto {
+  id: number;
   name: string;
-  type: string;
+  transaction_type: string;
   categories: CategoryDto[];
-}
-
-export interface CategoriesResponse {
-  groups: CategoryGroupDto[];
 }
