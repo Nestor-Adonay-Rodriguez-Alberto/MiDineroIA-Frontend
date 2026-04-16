@@ -13,7 +13,23 @@
   <div class="reg-chat">
 
     @if (loadingHistory) {
-      <div class="reg-date-pill">Cargando mensajes...</div>
+      <div class="reg-skeleton">
+        <div class="reg-skeleton__row reg-skeleton__row--ai">
+          <div class="reg-skeleton__bubble reg-skeleton__bubble--ai"></div>
+        </div>
+        <div class="reg-skeleton__row reg-skeleton__row--user">
+          <div class="reg-skeleton__bubble reg-skeleton__bubble--user"></div>
+        </div>
+        <div class="reg-skeleton__row reg-skeleton__row--ai">
+          <div class="reg-skeleton__bubble reg-skeleton__bubble--ai reg-skeleton__bubble--wide"></div>
+        </div>
+        <div class="reg-skeleton__row reg-skeleton__row--user">
+          <div class="reg-skeleton__bubble reg-skeleton__bubble--user reg-skeleton__bubble--short"></div>
+        </div>
+        <div class="reg-skeleton__row reg-skeleton__row--ai">
+          <div class="reg-skeleton__bubble reg-skeleton__bubble--ai reg-skeleton__bubble--card"></div>
+        </div>
+      </div>
     }
 
     @if (!loadingHistory && messages.length === 0) {
