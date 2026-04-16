@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { DashboardService } from '../core/services/dashboard.service';
 import { BudgetService } from '../core/services/budget.service';
+import { AuthService } from '../core/services/auth.service';
 import {
   DashboardResponse,
   CategoryDetailDto,
@@ -21,6 +22,14 @@ import {
 export class DashboardComponent implements OnInit {
   private dashboardService = inject(DashboardService);
   private budgetService = inject(BudgetService);
+  private authService = inject(AuthService);
+
+  get userInitials(): string {
+    const name = this.authService.getUser()?.name ?? '';
+    const parts = name.trim().split(/\s+/);
+    if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
+    return parts[0]?.[0]?.toUpperCase() ?? '?';
+  }
 
   selectedYear = new Date().getFullYear();
   selectedMonth = new Date().getMonth() + 1;

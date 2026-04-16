@@ -1,0 +1,104 @@
+<div class="prof-wrapper">
+
+  <!-- ── HEADER ─────────────────────────────────────────── -->
+  <header class="prof-header">
+    <div class="prof-header__logo">
+      <span class="prof-header__badge">$</span>
+      <span class="prof-header__title">MiDinero<span class="prof-header__title-ia">IA</span></span>
+    </div>
+    <div class="prof-header__avatar">{{ userInitials }}</div>
+  </header>
+
+  <!-- ── CONTENT ────────────────────────────────────────── -->
+  <div class="prof-content">
+
+    <!-- Avatar grande -->
+    <div class="prof-avatar-wrap">
+      <div class="prof-avatar">{{ userInitials }}</div>
+      <div class="prof-avatar-ring"></div>
+    </div>
+
+    <!-- Nombre y email -->
+    <h2 class="prof-name">{{ user?.name }}</h2>
+    <p class="prof-email">{{ user?.email }}</p>
+
+    <!-- Tarjeta de info -->
+    <div class="prof-card">
+      <div class="prof-card__row">
+        <div class="prof-card__icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2E7D32" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+            <circle cx="12" cy="7" r="4"/>
+          </svg>
+        </div>
+        <div class="prof-card__info">
+          <span class="prof-card__label">Nombre completo</span>
+          <span class="prof-card__value">{{ user?.name }}</span>
+        </div>
+      </div>
+
+      <div class="prof-card__divider"></div>
+
+      <div class="prof-card__row">
+        <div class="prof-card__icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2E7D32" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="4" width="20" height="16" rx="2"/>
+            <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
+          </svg>
+        </div>
+        <div class="prof-card__info">
+          <span class="prof-card__label">Correo electrónico</span>
+          <span class="prof-card__value">{{ user?.email }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Botón cerrar sesión -->
+    @if (!showConfirm) {
+      <button class="prof-btn-logout" (click)="showConfirm = true">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+          <polyline points="16 17 21 12 16 7"/>
+          <line x1="21" y1="12" x2="9" y2="12"/>
+        </svg>
+        Cerrar sesión
+      </button>
+    } @else {
+      <div class="prof-confirm">
+        <p class="prof-confirm__text">¿Seguro que quieres cerrar sesión?</p>
+        <div class="prof-confirm__actions">
+          <button class="prof-btn-confirm" (click)="logout()">Sí, salir</button>
+          <button class="prof-btn-cancel" (click)="showConfirm = false">Cancelar</button>
+        </div>
+      </div>
+    }
+
+  </div>
+
+  <!-- ── BOTTOM NAV ─────────────────────────────────────── -->
+  <nav class="prof-bottom-nav">
+    <a routerLink="/dashboard" class="prof-bottom-nav__item">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+        <rect x="3" y="3" width="7" height="7" rx="1" fill="#9E9E9E"/>
+        <rect x="14" y="3" width="7" height="7" rx="1" fill="#9E9E9E"/>
+        <rect x="3" y="14" width="7" height="7" rx="1" fill="#9E9E9E"/>
+        <rect x="14" y="14" width="7" height="7" rx="1" fill="#9E9E9E"/>
+      </svg>
+      <span>Dashboard</span>
+    </a>
+    <a routerLink="/registrar" class="prof-bottom-nav__item">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#9E9E9E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+      </svg>
+      <span>Registrar</span>
+    </a>
+    <a routerLink="/profile" class="prof-bottom-nav__item prof-bottom-nav__item--active">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2E7D32" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+        <circle cx="12" cy="7" r="4"/>
+      </svg>
+      <span>Perfil</span>
+    </a>
+  </nav>
+
+</div>
